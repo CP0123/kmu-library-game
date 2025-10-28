@@ -10,7 +10,7 @@
       grid-template-columns: repeat(3, 100px); 
       gap: 2px; 
       margin: 20px auto; 
-      justify-content: center; /* 置中 */
+      justify-content: center;
     }
     .piece { 
       width: 100px; 
@@ -50,30 +50,68 @@
     const options = {A:"選項1", B:"選項2", C:"選項3", D:"選項4"};
     const correctAnswer = "B";
 
+    let draggedIndex = null;
+
     startBtn.addEventListener('click', () => {
       container.innerHTML = '';
       quizContainer.style.display = 'none';
       resultEl.textContent = '';
 
       let fullImage = 'img/puzzle.jpg';
-      container.innerHTML = `<img src="${fullImage}" style="width:300px;height:300px;">`;
+      let pieces = [];
 
-      setTimeout(() => {
-        container.innerHTML = '';
-        let pieces = [];
-        for(let i=0;i<9;i++){
-          const div = document.createElement('div');
-          div.className = 'piece';
-          div.style.backgroundImage = `url(${fullImage})`;
-          div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
-          pieces.push(div);
+      // 建立拼圖塊
+      for(let i=0;i<9;i++){
+        const div = document.createElement('div');
+        div.className = 'piece';
+        div.style.backgroundImage = `url(${fullImage})`;
+        div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
+        div.dataset.correctIndex = i; // 記錄正確位置
+        pieces.push(div);
+      }
+
+      // 打亂
+      pieces.sort(()=> Math.random()-0.5);
+      pieces.forEach((div, idx)=>{
+        div.dataset.currentIndex = idx; // 記錄目前位置
+        container.appendChild(div);
+
+        // 拖曳事件
+        div.draggable = true;
+        div.addEventListener('dragstart', e => {
+          draggedIndex = idx;
+        });
+        div.addEventListener('dragover', e => e.preventDefault());
+        div.addEventListener('drop', e => {
+          // 交換位置
+          const targetIndex = idx;
+          if(draggedIndex !== null){
+            const draggedDiv = container.children[draggedIndex];
+            const targetDiv = container.children[targetIndex];
+
+            container.insertBefore(draggedDiv, targetDiv);
+            container.insertBefore(targetDiv, container.children[draggedIndex]);
+
+            // 更新 currentIndex
+            Array.from(container.children).forEach((child, i)=> child.dataset.currentIndex = i);
+            checkPuzzleComplete();
+          }
+        });
+      });
+
+      function checkPuzzleComplete(){
+        let complete = true;
+        Array.from(container.children).forEach(div=>{
+          if(div.dataset.currentIndex != div.dataset.correctIndex){
+            complete = false;
+          }
+        });
+        if(complete){
+          showQuiz();
         }
+      }
 
-        // 隨機打亂
-        pieces.sort(()=> Math.random()-0.5);
-        pieces.forEach(div => container.appendChild(div));
-
-        // 顯示問答
+      function showQuiz(){
         questionEl.textContent = question;
         document.querySelectorAll('.option-btn').forEach(btn=>{
           btn.textContent = options[btn.dataset.answer];
@@ -86,8 +124,7 @@
           }
         });
         quizContainer.style.display = 'block';
-
-      }, 5000);
+      }
     });
   </script>
 </body>
