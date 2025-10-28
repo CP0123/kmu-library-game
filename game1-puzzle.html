@@ -1,103 +1,156 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>拼圖遊戲</title>
-  <style>
-    body { text-align: center; font-family: sans-serif; }
-    #puzzle-container { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 2px; width: 306px; height: 306px; margin: 20px auto; border: 2px solid #000; }
-    #source-container { position: relative; width: 100%; height: 320px; border: 1px dashed #ccc; margin: 20px auto; }
-    .piece { width: 100px; height: 100px; background-size: 300px 300px; border: 2px solid red; cursor: grab; position: absolute; }
-    #countdown { font-size: 20px; margin-top: 10px; }
-    #description { font-size: 16px; margin-top: 5px; }
-  </style>
+<meta charset="UTF-8">
+<title>拼圖遊戲</title>
+<style>
+  body { font-family: sans-serif; text-align:center; margin:20px; }
+  #full-image { width:300px; height:300px; margin: 0 auto; display:none; }
+  #puzzle-container { display: grid; grid-template-columns: repeat(3, 100px); gap:2px; width:300px; height:300px; margin:20px auto; position:relative; }
+  .slot { width:100px; height:100px; border:1px solid #ccc; box-sizing:border-box; position:relative; }
+  .piece { width:100px; height:100px; border:2px solid red; position:absolute; cursor:grab; background-size:300px 300px; }
+  .correct { border:none; cursor:default; }
+  #message { margin-top:20px; font-weight:bold; }
+</style>
 </head>
 <body>
-  <h2>拼圖遊戲</h2>
-  <button id="startBtn">開始遊玩</button>
-  <div id="full-image-container"></div>
-  <div id="countdown"></div>
-  <div id="description"></div>
 
-  <div id="puzzle-container"></div>
-  <div id="source-container"></div>
+<h2>拼圖遊戲</h2>
+<button id="startBtn">開始遊玩</button>
+<div id="full-image"><img src="img/puzzle.jpg" width="300" height="300"></div>
+<div id="message"></div>
+<div id="puzzle-container"></div>
 
-  <script>
-    const startBtn = document.getElementById('startBtn');
-    const fullContainer = document.getElementById('full-image-container');
-    const countdownEl = document.getElementById('countdown');
-    const descEl = document.getElementById('description');
-    const puzzleContainer = document.getElementById('puzzle-container');
-    const sourceContainer = document.getElementById('source-container');
+<script>
+const startBtn = document.getElementById('startBtn');
+const container = document.getElementById('puzzle-container');
+const fullImageDiv = document.getElementById('full-image');
+const messageDiv = document.getElementById('message');
 
-    const fullImage = 'img/puzzle.jpg'; // 請放置你的拼圖圖片
-    let draggedPiece = null;
-    const pieces = [];
+const pieceSize = 100;
+const totalPieces = 9;
+let pieces = [];
+let correctCount = 0;
 
-    startBtn.addEventListener('click', () => {
-      startBtn.disabled = true;
-      puzzleContainer.innerHTML = '';
-      sourceContainer.innerHTML = '';
-      fullContainer.innerHTML = `<img src="${fullImage}" style="width:300px;height:300px;">`;
-      descEl.innerText = '請於5秒內記憶此圖片';
-      let timeLeft = 5;
-      countdownEl.innerText = `倒數: ${timeLeft}s`;
+// 生成拼圖資料
+for(let i=0;i<totalPieces;i++){
+  pieces.push({
+    id:i,
+    x: i%3,
+    y: Math.floor(i/3),
+    imgPosX: -100*(i%3),
+    imgPosY: -100*Math.floor(i/3)
+  });
+}
 
-      const timer = setInterval(() => {
-        timeLeft--;
-        countdownEl.innerText = `倒數: ${timeLeft}s`;
-        if(timeLeft <= 0){
-          clearInterval(timer);
-          fullContainer.innerHTML = '';
-          countdownEl.innerText = '';
-          descEl.innerText = '';
-          initPuzzle();
-        }
-      }, 1000);
-    });
+// 生成隨機位置
+function randomPosition(maxX, maxY){
+  return {
+    left: Math.random()*(maxX-pieceSize),
+    top: Math.random()*(maxY-pieceSize)
+  };
+}
 
-    function initPuzzle(){
-      // 建立9塊拼圖
-      for(let i=0;i<9;i++){
-        const div = document.createElement('div');
-        div.className = 'piece';
-        div.style.backgroundImage = `url(${fullImage})`;
-        div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
-        div.dataset.correctIndex = i;
-        // 隨機散落位置
-        div.style.left = Math.random()*(sourceContainer.offsetWidth-100) + 'px';
-        div.style.top = Math.random()*(sourceContainer.offsetHeight-100) + 'px';
-        div.draggable = true;
+startBtn.addEventListener('click', ()=>{
+  startBtn.style.display='none';
+  fullImageDiv.style.display='block';
+  messageDiv.innerText = "請於 5 秒內記憶此圖片";
 
-        div.addEventListener('dragstart', e => {
-          if(div.classList.contains('correct')) e.preventDefault();
-          draggedPiece = div;
-        });
+  let countdown = 5;
+  const interval = setInterval(()=>{
+    countdown--;
+    messageDiv.innerText = `請於 ${countdown} 秒內記憶此圖片`;
+    if(countdown<=0){
+      clearInterval(interval);
+      fullImageDiv.style.display='none';
+      messageDiv.innerText = "開始拖曳拼圖吧！";
+      initPuzzle();
+    }
+  },1000);
+});
 
-        pieces.push(div);
-        sourceContainer.appendChild(div);
+// 初始化拼圖
+function initPuzzle(){
+  container.innerHTML='';
+  correctCount=0;
+  const containerRect = container.getBoundingClientRect();
+
+  pieces.forEach(p=>{
+    const div = document.createElement('div');
+    div.className='piece';
+    div.style.backgroundImage='url(img/puzzle.jpg)';
+    div.style.backgroundPosition=`${p.imgPosX}px ${p.imgPosY}px`;
+    const pos = randomPosition(containerRect.width, containerRect.height);
+    div.style.left = pos.left + 'px';
+    div.style.top = pos.top + 'px';
+    div.dataset.id = p.id;
+    container.appendChild(div);
+
+    makeDraggable(div, p);
+  });
+}
+
+// 拖曳 + 觸控事件
+function makeDraggable(el, piece){
+  let offsetX, offsetY;
+
+  function dragStart(e){
+    e.preventDefault();
+    const rect = el.getBoundingClientRect();
+    if(e.type==='touchstart'){
+      offsetX = e.touches[0].clientX - rect.left;
+      offsetY = e.touches[0].clientY - rect.top;
+      document.addEventListener('touchmove', dragMove);
+      document.addEventListener('touchend', dragEnd);
+    }else{
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      document.addEventListener('mousemove', dragMove);
+      document.addEventListener('mouseup', dragEnd);
+    }
+  }
+
+  function dragMove(e){
+    e.preventDefault();
+    let clientX = e.clientX || e.touches[0].clientX;
+    let clientY = e.clientY || e.touches[0].clientY;
+    let left = clientX - offsetX - container.getBoundingClientRect().left;
+    let top = clientY - offsetY - container.getBoundingClientRect().top;
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+  }
+
+  function dragEnd(e){
+    e.preventDefault();
+    // 判斷是否放在正確格子
+    const correctLeft = piece.x*pieceSize;
+    const correctTop = piece.y*pieceSize;
+    const currentLeft = parseInt(el.style.left);
+    const currentTop = parseInt(el.style.top);
+
+    const tolerance = 20; // 可容忍範圍
+    if(Math.abs(currentLeft-correctLeft)<=tolerance && Math.abs(currentTop-correctTop)<=tolerance){
+      el.style.left = correctLeft+'px';
+      el.style.top = correctTop+'px';
+      el.classList.add('correct');
+      el.style.border='none';
+      correctCount++;
+      if(correctCount===totalPieces){
+        messageDiv.innerText = "恭喜完成拼圖！";
       }
     }
 
-    // 目標容器 drop
-    puzzleContainer.addEventListener('dragover', e => e.preventDefault());
-    puzzleContainer.addEventListener('drop', e => {
-      if(!draggedPiece) return;
-      const rect = puzzleContainer.getBoundingClientRect();
-      const x = Math.floor((e.clientX - rect.left) / 100);
-      const y = Math.floor((e.clientY - rect.top) / 100);
-      const targetIndex = y*3 + x;
+    // 移除事件
+    document.removeEventListener('mousemove', dragMove);
+    document.removeEventListener('mouseup', dragEnd);
+    document.removeEventListener('touchmove', dragMove);
+    document.removeEventListener('touchend', dragEnd);
+  }
 
-      if(targetIndex === parseInt(draggedPiece.dataset.correctIndex)){
-        draggedPiece.classList.add('correct');
-        draggedPiece.style.border = 'none';
-        draggedPiece.style.position = 'relative';
-        draggedPiece.style.left = '0';
-        draggedPiece.style.top = '0';
-        puzzleContainer.appendChild(draggedPiece);
-      }
-      draggedPiece = null;
-    });
-  </script>
+  el.addEventListener('mousedown', dragStart);
+  el.addEventListener('touchstart', dragStart);
+}
+</script>
+
 </body>
 </html>
