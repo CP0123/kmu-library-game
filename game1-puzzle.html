@@ -34,12 +34,39 @@
     touch-action: none;
   }
   .quiz, #success { margin-top:20px; display:none; }
-  button { margin:5px; padding:10px 20px; }
+  
+  /* 遊戲介紹區塊 */
+  #game-intro {
+    margin: 20px auto;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* 開始按鈕 */
+  #startBtn {
+    margin: 20px auto;
+    padding: 20px 60px;
+    font-size: 22px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 50px; /* 橢圓形 */
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #startBtn:hover {
+    background-color: #218838;
+  }
 </style>
 </head>
 <body>
 
+<!-- 遊戲介紹 -->
+<div id="game-intro">遊戲介紹：記憶圖片 → 拼圖 → 回答問題 → 完成闖關！</div>
+
 <div id="full-image-container"></div>
+
 <button id="startBtn">開始遊玩</button>
 
 <div id="puzzle-container"></div>
@@ -112,13 +139,12 @@ function createPieces() {
     div.style.backgroundImage=`url(${fullImage})`;
     div.style.backgroundPosition=`${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
 
-    // 隨機放入黑格裡
     const slot = container.children[positions[i]];
     div.style.left = slot.offsetLeft + 'px';
     div.style.top = slot.offsetTop + 'px';
 
     div.dataset.index = i;
-    div.style.zIndex = 10; // 初始圖層在上層
+    div.style.zIndex = 10;
     container.appendChild(div);
     pieces.push(div);
 
@@ -130,28 +156,23 @@ function makeDraggable(el){
   let offsetX, offsetY;
   let dragging = false;
 
-function startDrag(e){
-  if(el.dataset.correct) return; // 拼對鎖定
-  e.preventDefault();
-  dragging = true;
+  function startDrag(e){
+    if(el.dataset.correct) return;
+    e.preventDefault();
+    dragging = true;
+    pieces.forEach(p => { if(!p.dataset.correct) p.style.zIndex = 10; });
+    el.style.zIndex = 100;
 
-  // 將所有拼圖 zIndex 降到 10
-  pieces.forEach(p => {
-    if(!p.dataset.correct) p.style.zIndex = 10;
-  });
-
-  el.style.zIndex = 100; // 拖動的拼圖置頂
-
-  const rect = el.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  offsetX = clientX - rect.left;
-  offsetY = clientY - rect.top;
-  document.addEventListener('mousemove', onDrag);
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchmove', onDrag);
-  document.addEventListener('touchend', endDrag);
-}
+    const rect = el.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    offsetX = clientX - rect.left;
+    offsetY = clientY - rect.top;
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchmove', onDrag);
+    document.addEventListener('touchend', endDrag);
+  }
 
   function onDrag(e){
     if(!dragging) return;
@@ -166,7 +187,6 @@ function startDrag(e){
     if(!dragging) return;
     dragging=false;
 
-    // 檢查是否放對
     const index = parseInt(el.dataset.index);
     const slot = container.children[index];
     const dx = el.offsetLeft - slot.offsetLeft;
@@ -176,7 +196,7 @@ function startDrag(e){
       el.style.top = slot.offsetTop + 'px';
       el.style.border = 'none';
       el.style.cursor = 'default';
-      el.style.zIndex = 0; // 拼對後移到下層
+      el.style.zIndex = 0;
       el.dataset.correct = 'true';
       correctCount++;
       if(correctCount===9){ showQuiz(); }
@@ -197,7 +217,6 @@ function showQuiz(){
 
 document.querySelectorAll('.quiz-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    // 假設 B 選項正確
     if(btn.textContent.includes('B')){
       quiz.style.display='none';
       success.style.display='block';
