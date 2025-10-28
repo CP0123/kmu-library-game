@@ -4,166 +4,100 @@
   <meta charset="UTF-8">
   <title>拼圖遊戲</title>
   <style>
-    body { font-family: "Noto Sans TC", sans-serif; text-align:center; padding:20px; }
-    #puzzle-container { 
-      display: grid; 
-      grid-template-columns: repeat(3, 100px); 
-      gap: 2px; 
-      margin: 20px auto; 
-      justify-content: center;
-    }
-    .piece { 
-      width: 100px; 
-      height: 100px; 
-      background-size: 300px 300px; 
-      cursor: grab; 
-      border: 2px solid red;
-      box-sizing: border-box;
-    }
-    .piece.correct { border: none; cursor: default; }
-    .green-btn { position: absolute; top: 10px; right: 10px; padding:10px 20px; background-color:green; color:white; border-radius:20px; text-decoration:none; }
-    #quiz-container button { margin:5px; padding:10px 20px; border-radius:10px; cursor:pointer; }
-    #memory-container img { width:300px; height:300px; margin-top:10px; }
-    #countdown { font-size:24px; font-weight:bold; margin-top:10px; }
+    body { text-align: center; font-family: sans-serif; }
+    #puzzle-container { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 2px; width: 306px; height: 306px; margin: 20px auto; border: 2px solid #000; }
+    #source-container { position: relative; width: 100%; height: 320px; border: 1px dashed #ccc; margin: 20px auto; }
+    .piece { width: 100px; height: 100px; background-size: 300px 300px; border: 2px solid red; cursor: grab; position: absolute; }
+    #countdown { font-size: 20px; margin-top: 10px; }
+    #description { font-size: 16px; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <a href="index.html" class="green-btn">返回互動遊戲</a>
   <h2>拼圖遊戲</h2>
   <button id="startBtn">開始遊玩</button>
-  
-  <!-- 記憶階段 -->
-  <div id="memory-container" style="display:none;">
-    <p id="memory-text"></p>
-    <img id="memory-img" src="">
-    <p id="countdown"></p>
-  </div>
-  
-  <div id="puzzle-container"></div>
+  <div id="full-image-container"></div>
+  <div id="countdown"></div>
+  <div id="description"></div>
 
-  <!-- 問答區 -->
-  <div id="quiz-container" style="display:none; margin-top:20px;">
-    <p id="question"></p>
-    <button class="option-btn" data-answer="A"></button>
-    <button class="option-btn" data-answer="B"></button>
-    <button class="option-btn" data-answer="C"></button>
-    <button class="option-btn" data-answer="D"></button>
-    <p id="result" style="margin-top:10px; font-weight:bold;"></p>
-  </div>
+  <div id="puzzle-container"></div>
+  <div id="source-container"></div>
 
   <script>
     const startBtn = document.getElementById('startBtn');
-    const container = document.getElementById('puzzle-container');
-    const quizContainer = document.getElementById('quiz-container');
-    const questionEl = document.getElementById('question');
-    const resultEl = document.getElementById('result');
-    const memoryContainer = document.getElementById('memory-container');
-    const memoryImg = document.getElementById('memory-img');
-    const memoryText = document.getElementById('memory-text');
+    const fullContainer = document.getElementById('full-image-container');
     const countdownEl = document.getElementById('countdown');
+    const descEl = document.getElementById('description');
+    const puzzleContainer = document.getElementById('puzzle-container');
+    const sourceContainer = document.getElementById('source-container');
 
-    const question = "請問這張拼圖圖片代表什麼？";
-    const options = {A:"選項1", B:"選項2", C:"選項3", D:"選項4"};
-    const correctAnswer = "B";
-
-    let draggedIndex = null;
-    const memorySeconds = 5; // 記憶秒數
+    const fullImage = 'img/puzzle.jpg'; // 請放置你的拼圖圖片
+    let draggedPiece = null;
+    const pieces = [];
 
     startBtn.addEventListener('click', () => {
-      container.innerHTML = '';
-      quizContainer.style.display = 'none';
-      resultEl.textContent = '';
-      memoryContainer.style.display = 'block';
+      startBtn.disabled = true;
+      puzzleContainer.innerHTML = '';
+      sourceContainer.innerHTML = '';
+      fullContainer.innerHTML = `<img src="${fullImage}" style="width:300px;height:300px;">`;
+      descEl.innerText = '請於5秒內記憶此圖片';
+      let timeLeft = 5;
+      countdownEl.innerText = `倒數: ${timeLeft}s`;
 
-      const fullImage = 'img/puzzle.jpg';
-      memoryImg.src = fullImage;
-      memoryText.textContent = `請於 ${memorySeconds} 秒內記住此圖片`;
-
-      // 倒數
-      let timeLeft = memorySeconds;
-      countdownEl.textContent = timeLeft;
-      const timer = setInterval(()=>{
+      const timer = setInterval(() => {
         timeLeft--;
-        countdownEl.textContent = timeLeft;
+        countdownEl.innerText = `倒數: ${timeLeft}s`;
         if(timeLeft <= 0){
           clearInterval(timer);
-          memoryContainer.style.display = 'none';
-          startPuzzle(fullImage);
+          fullContainer.innerHTML = '';
+          countdownEl.innerText = '';
+          descEl.innerText = '';
+          initPuzzle();
         }
       }, 1000);
     });
 
-    function startPuzzle(fullImage){
-      const pieces = [];
+    function initPuzzle(){
+      // 建立9塊拼圖
       for(let i=0;i<9;i++){
         const div = document.createElement('div');
         div.className = 'piece';
         div.style.backgroundImage = `url(${fullImage})`;
         div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
         div.dataset.correctIndex = i;
-        pieces.push(div);
-      }
-
-      // 打亂
-      pieces.sort(()=> Math.random()-0.5);
-      pieces.forEach((div, idx)=>{
-        div.dataset.currentIndex = idx;
-        container.appendChild(div);
-
-        // 拖曳事件
+        // 隨機散落位置
+        div.style.left = Math.random()*(sourceContainer.offsetWidth-100) + 'px';
+        div.style.top = Math.random()*(sourceContainer.offsetHeight-100) + 'px';
         div.draggable = true;
+
         div.addEventListener('dragstart', e => {
-          if(div.classList.contains('correct')) return;
-          draggedIndex = idx;
+          if(div.classList.contains('correct')) e.preventDefault();
+          draggedPiece = div;
         });
-        div.addEventListener('dragover', e => e.preventDefault());
-        div.addEventListener('drop', e => {
-          if(div.classList.contains('correct')) return;
-          const targetIndex = idx;
-          if(draggedIndex !== null){
-            const draggedDiv = container.children[draggedIndex];
-            const targetDiv = container.children[targetIndex];
 
-            if(targetDiv.classList.contains('correct')) return;
-
-            container.insertBefore(draggedDiv, targetDiv);
-            container.insertBefore(targetDiv, container.children[draggedIndex]);
-            Array.from(container.children).forEach((child, i)=> child.dataset.currentIndex = i);
-            checkPuzzleComplete();
-          }
-        });
-      });
-
-      function checkPuzzleComplete(){
-        let complete = true;
-        Array.from(container.children).forEach(div=>{
-          if(div.dataset.currentIndex == div.dataset.correctIndex){
-            div.classList.add('correct');
-            div.draggable = false;
-          } else {
-            complete = false;
-          }
-        });
-        if(complete){
-          showQuiz();
-        }
-      }
-
-      function showQuiz(){
-        questionEl.textContent = question;
-        document.querySelectorAll('.option-btn').forEach(btn=>{
-          btn.textContent = options[btn.dataset.answer];
-          btn.onclick = function(){
-            if(this.dataset.answer === correctAnswer){
-              resultEl.textContent = "答對了！通關成功🎉";
-            } else {
-              resultEl.textContent = "答錯了，再試一次❌";
-            }
-          }
-        });
-        quizContainer.style.display = 'block';
+        pieces.push(div);
+        sourceContainer.appendChild(div);
       }
     }
+
+    // 目標容器 drop
+    puzzleContainer.addEventListener('dragover', e => e.preventDefault());
+    puzzleContainer.addEventListener('drop', e => {
+      if(!draggedPiece) return;
+      const rect = puzzleContainer.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / 100);
+      const y = Math.floor((e.clientY - rect.top) / 100);
+      const targetIndex = y*3 + x;
+
+      if(targetIndex === parseInt(draggedPiece.dataset.correctIndex)){
+        draggedPiece.classList.add('correct');
+        draggedPiece.style.border = 'none';
+        draggedPiece.style.position = 'relative';
+        draggedPiece.style.left = '0';
+        draggedPiece.style.top = '0';
+        puzzleContainer.appendChild(draggedPiece);
+      }
+      draggedPiece = null;
+    });
   </script>
 </body>
 </html>
