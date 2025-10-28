@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>解憂食堂</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .green-btn { position: absolute; top: 10px; right: 10px; }
+    .question { margin:20px auto; font-size:18px; }
+    .options button { display:block; margin:10px auto; padding:10px 20px; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="green-btn">返回互動遊戲</a>
+  <h2>解憂食堂 Demo</h2>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+
+  <script>
+    const questions = [
+      {q:'題目1', options:['A','B','C','D'], ans:0},
+      {q:'題目2', options:['A','B','C','D'], ans:2},
+      {q:'題目3', options:['A','B','C','D'], ans:1},
+      {q:'題目4', options:['A','B','C','D'], ans:3},
+      {q:'題目5', options:['A','B','C','D'], ans:0},
+    ];
+    let current=0;
+    const qDiv=document.getElementById('question');
+    const oDiv=document.getElementById('options');
+
+    function showQuestion(){
+      qDiv.textContent=questions[current].q;
+      oDiv.innerHTML='';
+      questions[current].options.forEach((opt,i)=>{
+        const btn=document.createElement('button');
+        btn.textContent=opt;
+        btn.addEventListener('click',()=>{
+          if(i===questions[current].ans){
+            alert('答對!');
+            current++;
+            if(current>=questions.length) alert('通關!');
+            else showQuestion();
+          } else alert('答錯，請再試一次');
+        });
+        oDiv.appendChild(btn);
+      });
+    }
+    showQuestion();
+  </script>
+</body>
+</html>
