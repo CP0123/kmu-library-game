@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>拼圖遊戲</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #puzzle-container { display: grid; grid-template-columns: repeat(3, 100px); gap: 2px; margin: 20px auto; }
+    .piece { width: 100px; height: 100px; background-size: cover; cursor: grab; }
+    .green-btn { position: absolute; top: 10px; right: 10px; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="green-btn">返回互動遊戲</a>
+  <h2>拼圖遊戲</h2>
+  <button id="startBtn">開始遊玩</button>
+  <div id="puzzle-container"></div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const container = document.getElementById('puzzle-container');
+    startBtn.addEventListener('click', () => {
+      container.innerHTML = '';
+      let fullImage = 'img/puzzle.jpg';
+      // 顯示完整圖片5秒
+      container.innerHTML = `<img src="${fullImage}" style="width:300px;height:300px;">`;
+      setTimeout(() => {
+        container.innerHTML = '';
+        // 拼圖9塊示意
+        for(let i=0;i<9;i++){
+          const div = document.createElement('div');
+          div.className = 'piece';
+          div.style.backgroundImage = `url(${fullImage})`;
+          div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
+          container.appendChild(div);
+        }
+        alert('拼圖完成後會出現問答（這裡示意）');
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
