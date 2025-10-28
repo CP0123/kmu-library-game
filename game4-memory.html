@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>記憶翻牌</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #board { display: grid; grid-template-columns: repeat(4, 100px); gap: 10px; justify-content: center; margin-top:20px;}
+    .card { width:100px; height:100px; background-color:#ccc; cursor:pointer; display:flex; justify-content:center; align-items:center; font-size:24px; }
+    .green-btn { position: absolute; top: 10px; right: 10px; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="green-btn">返回互動遊戲</a>
+  <h2>記憶翻牌</h2>
+  <button id="startBtn">開始遊玩</button>
+  <div id="board"></div>
+
+  <script>
+    const startBtn2 = document.getElementById('startBtn');
+    const board = document.getElementById('board');
+
+    startBtn2.addEventListener('click', () => {
+      board.innerHTML = '';
+      let cards = [...Array(8).keys(), ...Array(8).keys()];
+      cards.sort(()=>Math.random()-0.5);
+      let flipped = [];
+      cards.forEach((num,i)=>{
+        let div = document.createElement('div');
+        div.className='card';
+        div.dataset.num=num;
+        div.textContent='';
+        div.addEventListener('click',()=>{
+          if(div.textContent==='' && flipped.length<2){
+            div.textContent=num;
+            flipped.push(div);
+            if(flipped.length===2){
+              if(flipped[0].dataset.num===flipped[1].dataset.num){
+                flipped=[];
+                if([...board.children].every(c=>c.textContent!=='')) alert('通關！');
+              } else {
+                setTimeout(()=>{flipped.forEach(c=>c.textContent=''); flipped=[]},500);
+              }
+            }
+          }
+        });
+        board.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
