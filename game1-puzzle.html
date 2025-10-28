@@ -129,8 +129,8 @@
 <div class="quiz" id="quiz">
   <h3>完成拼圖！<br>Q：關於本畫作「割膚之愛」的敘述，何者有誤？<br></h3>
   <p>A.原作保存於高雄醫學大學校史館。</p>
-  <p>B.描繪異體皮膚移植手術，且手術成功。</p>
-  <p>C.本畫作為李石樵所描繪。</p>
+  <p>B.描繪異體皮膚移植手術。</p>
+  <p>C.該手術使用父親皮膚移植給小孩。</p>
   <button class="quiz-btn">A</button>
   <button class="quiz-btn">B</button>
   <button class="quiz-btn">C</button>
@@ -277,7 +277,7 @@ function showQuiz(){
 
 document.querySelectorAll('.quiz-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    if(btn.textContent.includes('B')){
+    if(btn.textContent.includes('C')){
       quiz.style.display='none';
       success.style.display='block';
     } else {
