@@ -11,15 +11,17 @@ h1 {
 
 .game-buttons a {
   display: inline-block;
-  margin: 10px;
-  padding: 15px 25px;
+  margin: 15px;
+  padding: 18px 30px;
   background-color: #4CAF50;
   color: white;
   border-radius: 30px;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 20px;
+  transition: 0.3s;
 }
 
 .game-buttons a:hover {
   background-color: #45a049;
+  transform: scale(1.1);
 }
