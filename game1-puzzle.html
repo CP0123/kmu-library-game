@@ -17,21 +17,28 @@
       height: 100px; 
       background-size: 300px 300px; 
       cursor: grab; 
-      border: 2px solid red; /* 紅色外框 */
+      border: 2px solid red;
       box-sizing: border-box;
     }
-    .piece.correct { 
-      border: none; /* 拼對後移除邊框 */
-      cursor: default; /* 不可再拖動 */
-    }
+    .piece.correct { border: none; cursor: default; }
     .green-btn { position: absolute; top: 10px; right: 10px; padding:10px 20px; background-color:green; color:white; border-radius:20px; text-decoration:none; }
     #quiz-container button { margin:5px; padding:10px 20px; border-radius:10px; cursor:pointer; }
+    #memory-container img { width:300px; height:300px; margin-top:10px; }
+    #countdown { font-size:24px; font-weight:bold; margin-top:10px; }
   </style>
 </head>
 <body>
   <a href="index.html" class="green-btn">返回互動遊戲</a>
   <h2>拼圖遊戲</h2>
   <button id="startBtn">開始遊玩</button>
+  
+  <!-- 記憶階段 -->
+  <div id="memory-container" style="display:none;">
+    <p id="memory-text"></p>
+    <img id="memory-img" src="">
+    <p id="countdown"></p>
+  </div>
+  
   <div id="puzzle-container"></div>
 
   <!-- 問答區 -->
@@ -50,59 +57,77 @@
     const quizContainer = document.getElementById('quiz-container');
     const questionEl = document.getElementById('question');
     const resultEl = document.getElementById('result');
+    const memoryContainer = document.getElementById('memory-container');
+    const memoryImg = document.getElementById('memory-img');
+    const memoryText = document.getElementById('memory-text');
+    const countdownEl = document.getElementById('countdown');
 
     const question = "請問這張拼圖圖片代表什麼？";
     const options = {A:"選項1", B:"選項2", C:"選項3", D:"選項4"};
     const correctAnswer = "B";
 
     let draggedIndex = null;
+    const memorySeconds = 5; // 記憶秒數
 
     startBtn.addEventListener('click', () => {
       container.innerHTML = '';
       quizContainer.style.display = 'none';
       resultEl.textContent = '';
+      memoryContainer.style.display = 'block';
 
-      let fullImage = 'img/puzzle.jpg';
-      let pieces = [];
+      const fullImage = 'img/puzzle.jpg';
+      memoryImg.src = fullImage;
+      memoryText.textContent = `請於 ${memorySeconds} 秒內記住此圖片`;
 
-      // 建立拼圖塊
+      // 倒數
+      let timeLeft = memorySeconds;
+      countdownEl.textContent = timeLeft;
+      const timer = setInterval(()=>{
+        timeLeft--;
+        countdownEl.textContent = timeLeft;
+        if(timeLeft <= 0){
+          clearInterval(timer);
+          memoryContainer.style.display = 'none';
+          startPuzzle(fullImage);
+        }
+      }, 1000);
+    });
+
+    function startPuzzle(fullImage){
+      const pieces = [];
       for(let i=0;i<9;i++){
         const div = document.createElement('div');
         div.className = 'piece';
         div.style.backgroundImage = `url(${fullImage})`;
         div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
-        div.dataset.correctIndex = i; // 記錄正確位置
+        div.dataset.correctIndex = i;
         pieces.push(div);
       }
 
       // 打亂
       pieces.sort(()=> Math.random()-0.5);
       pieces.forEach((div, idx)=>{
-        div.dataset.currentIndex = idx; // 記錄目前位置
+        div.dataset.currentIndex = idx;
         container.appendChild(div);
 
         // 拖曳事件
         div.draggable = true;
         div.addEventListener('dragstart', e => {
-          if(div.classList.contains('correct')) return; // 拼對不可拖
+          if(div.classList.contains('correct')) return;
           draggedIndex = idx;
         });
         div.addEventListener('dragover', e => e.preventDefault());
         div.addEventListener('drop', e => {
-          if(div.classList.contains('correct')) return; // 拼對不可放
+          if(div.classList.contains('correct')) return;
           const targetIndex = idx;
           if(draggedIndex !== null){
             const draggedDiv = container.children[draggedIndex];
             const targetDiv = container.children[targetIndex];
 
-            // 若目標拼圖已正確，不交換
             if(targetDiv.classList.contains('correct')) return;
 
-            // 交換
             container.insertBefore(draggedDiv, targetDiv);
             container.insertBefore(targetDiv, container.children[draggedIndex]);
-
-            // 更新 currentIndex
             Array.from(container.children).forEach((child, i)=> child.dataset.currentIndex = i);
             checkPuzzleComplete();
           }
@@ -113,7 +138,7 @@
         let complete = true;
         Array.from(container.children).forEach(div=>{
           if(div.dataset.currentIndex == div.dataset.correctIndex){
-            div.classList.add('correct'); // 拼對，外框消失
+            div.classList.add('correct');
             div.draggable = false;
           } else {
             complete = false;
@@ -138,7 +163,7 @@
         });
         quizContainer.style.display = 'block';
       }
-    });
+    }
   </script>
 </body>
 </html>
