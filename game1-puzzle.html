@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>拼圖遊戲</title>
-  <link rel="stylesheet" href="style.css">
   <style>
+    body { font-family: "Noto Sans TC", sans-serif; text-align:center; padding:20px; }
     #puzzle-container { display: grid; grid-template-columns: repeat(3, 100px); gap: 2px; margin: 20px auto; }
-    .piece { width: 100px; height: 100px; background-size: cover; cursor: grab; }
-    .green-btn { position: absolute; top: 10px; right: 10px; }
+    .piece { width: 100px; height: 100px; background-size: 300px 300px; cursor: grab; border:1px solid #ccc; }
+    .green-btn { position: absolute; top: 10px; right: 10px; padding:10px 20px; background-color:green; color:white; border-radius:20px; text-decoration:none; }
+    #quiz-container button { margin:5px; padding:10px 20px; border-radius:10px; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -16,17 +17,40 @@
   <button id="startBtn">開始遊玩</button>
   <div id="puzzle-container"></div>
 
+  <!-- 問答區 -->
+  <div id="quiz-container" style="display:none; margin-top:20px;">
+    <p id="question"></p>
+    <button class="option-btn" data-answer="A"></button>
+    <button class="option-btn" data-answer="B"></button>
+    <button class="option-btn" data-answer="C"></button>
+    <button class="option-btn" data-answer="D"></button>
+    <p id="result" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
+
   <script>
     const startBtn = document.getElementById('startBtn');
     const container = document.getElementById('puzzle-container');
+    const quizContainer = document.getElementById('quiz-container');
+    const questionEl = document.getElementById('question');
+    const resultEl = document.getElementById('result');
+
+    // 問題設定
+    const question = "請問這張拼圖圖片代表什麼？";
+    const options = {A:"選項1", B:"選項2", C:"選項3", D:"選項4"};
+    const correctAnswer = "B";
+
     startBtn.addEventListener('click', () => {
+      // 重置
       container.innerHTML = '';
-      let fullImage = 'img/puzzle.jpg';
-      // 顯示完整圖片5秒
+      quizContainer.style.display = 'none';
+      resultEl.textContent = '';
+
+      let fullImage = 'img/puzzle.jpg'; // 放你的大圖路徑
       container.innerHTML = `<img src="${fullImage}" style="width:300px;height:300px;">`;
+
+      // 5秒後切成9塊拼圖
       setTimeout(() => {
         container.innerHTML = '';
-        // 拼圖9塊示意
         for(let i=0;i<9;i++){
           const div = document.createElement('div');
           div.className = 'piece';
@@ -34,7 +58,21 @@
           div.style.backgroundPosition = `${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
           container.appendChild(div);
         }
-        alert('拼圖完成後會出現問答（這裡示意）');
+
+        // 顯示問答
+        questionEl.textContent = question;
+        document.querySelectorAll('.option-btn').forEach(btn=>{
+          btn.textContent = options[btn.dataset.answer];
+          btn.onclick = function(){
+            if(this.dataset.answer === correctAnswer){
+              resultEl.textContent = "答對了！通關成功🎉";
+            } else {
+              resultEl.textContent = "答錯了，再試一次❌";
+            }
+          }
+        });
+        quizContainer.style.display = 'block';
+
       }, 5000);
     });
   </script>
