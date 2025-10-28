@@ -17,7 +17,12 @@
       height: 100px; 
       background-size: 300px 300px; 
       cursor: grab; 
-      border:1px solid #ccc; 
+      border: 2px solid red; /* 紅色外框 */
+      box-sizing: border-box;
+    }
+    .piece.correct { 
+      border: none; /* 拼對後移除邊框 */
+      cursor: default; /* 不可再拖動 */
     }
     .green-btn { position: absolute; top: 10px; right: 10px; padding:10px 20px; background-color:green; color:white; border-radius:20px; text-decoration:none; }
     #quiz-container button { margin:5px; padding:10px 20px; border-radius:10px; cursor:pointer; }
@@ -79,16 +84,21 @@
         // 拖曳事件
         div.draggable = true;
         div.addEventListener('dragstart', e => {
+          if(div.classList.contains('correct')) return; // 拼對不可拖
           draggedIndex = idx;
         });
         div.addEventListener('dragover', e => e.preventDefault());
         div.addEventListener('drop', e => {
-          // 交換位置
+          if(div.classList.contains('correct')) return; // 拼對不可放
           const targetIndex = idx;
           if(draggedIndex !== null){
             const draggedDiv = container.children[draggedIndex];
             const targetDiv = container.children[targetIndex];
 
+            // 若目標拼圖已正確，不交換
+            if(targetDiv.classList.contains('correct')) return;
+
+            // 交換
             container.insertBefore(draggedDiv, targetDiv);
             container.insertBefore(targetDiv, container.children[draggedIndex]);
 
@@ -102,7 +112,10 @@
       function checkPuzzleComplete(){
         let complete = true;
         Array.from(container.children).forEach(div=>{
-          if(div.dataset.currentIndex != div.dataset.correctIndex){
+          if(div.dataset.currentIndex == div.dataset.correctIndex){
+            div.classList.add('correct'); // 拼對，外框消失
+            div.draggable = false;
+          } else {
             complete = false;
           }
         });
