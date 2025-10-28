@@ -3,208 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <title>拼圖遊戲</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: "Noto Sans TC", sans-serif; text-align:center; margin:0; padding:0; }
-  #full-image-container img { width:300px; height:300px; }
+  body { text-align: center; font-family: sans-serif; }
   #puzzle-container { 
-    display: grid; 
-    grid-template-columns: repeat(3, 100px); 
-    grid-template-rows: repeat(3, 100px);
-    gap: 0; 
-    margin: 20px auto; 
-    position: relative;
-    width: max-content;
-    height: max-content;
-    display:none; /* 遊戲開始前隱藏 */
+    width: 306px; height: 306px; margin: 20px auto; 
+    display: grid; grid-template-columns: repeat(3, 100px); 
+    grid-template-rows: repeat(3, 100px); gap: 2px;
     background-color: black;
-  }
-  .slot {
-    width: 100px; height: 100px;
-    background-color: black;
-    border: 1px solid white; /* 白色格線 */
     position: relative;
   }
-  .piece { 
-    width: 100px; height: 100px; 
-    background-size: 300px 300px; 
-    border: 2px solid red; 
-    cursor: grab;
-    position: absolute;
-    touch-action: none;
-  }
-  .quiz, #success { margin-top:20px; display:none; }
-  button { margin:5px; padding:10px 20px; }
+  .slot { border: 1px solid white; width: 100px; height: 100px; }
+  .piece { width: 100px; height: 100px; background-size: 300px 300px; 
+           position: absolute; cursor: grab; border: 2px solid red; }
+  #full-image { width: 300px; height: 300px; margin: 0 auto; }
+  #question { margin-top: 20px; display: none; }
+  #question button { margin: 5px; }
+  #startBtn { margin: 20px; }
 </style>
 </head>
 <body>
 
 <h2>拼圖遊戲</h2>
-<div id="full-image-container"></div>
-<button id="startBtn">開始遊玩</button>
+<div id="full-image-container">
+  <img id="full-image" src="img/puzzle.jpg" alt="完整拼圖">
+  <p id="countdown">5</p>
+</div>
+
+<button id="startBtn">開始遊戲</button>
 
 <div id="puzzle-container"></div>
 
-<div class="quiz" id="quiz">
-  <h3>完成拼圖！請回答問答題：</h3>
-  <button class="quiz-btn">A 選項</button>
-  <button class="quiz-btn">B 選項</button>
-  <button class="quiz-btn">C 選項</button>
-  <button class="quiz-btn">D 選項</button>
-</div>
-
-<div id="success">
-  <h3>恭喜通關！</h3>
-  <button id="restartBtn">重新遊玩</button>
+<div id="question">
+  <h3>問答題：這是範例問題？</h3>
+  <button data-answer="0">選項 A</button>
+  <button data-answer="1">選項 B</button>
+  <button data-answer="2">選項 C</button>
+  <button data-answer="3">選項 D</button>
 </div>
 
 <script>
 const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
 const container = document.getElementById('puzzle-container');
 const fullImageContainer = document.getElementById('full-image-container');
-const quiz = document.getElementById('quiz');
-const success = document.getElementById('success');
+const fullImage = document.getElementById('full-image');
+const countdownEl = document.getElementById('countdown');
+const questionDiv = document.getElementById('question');
 
-const fullImage = 'img/puzzle.jpg'; // 請換成你的拼圖圖檔
-let correctCount = 0;
 let pieces = [];
+let correctCount = 0;
+const gridSize = 3; // 3x3
 
-function showFullImage() {
-  fullImageContainer.innerHTML = `<img src="${fullImage}"><p>請於5秒內記憶此圖片</p>`;
-  setTimeout(()=>{
-    fullImageContainer.innerHTML='';
-    startPuzzle();
-  },5000);
+function shuffleArray(array) {
+  for (let i = array.length -1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
-function startPuzzle(){
-  container.style.display='grid';
-  createSlots();
-  createPieces();
+function startGame() {
+  startBtn.style.display = 'none';
+  fullImageContainer.style.display = 'block';
+  let countdown = 5;
+  countdownEl.textContent = countdown;
+  const timer = setInterval(()=>{
+    countdown--;
+    countdownEl.textContent = countdown;
+    if(countdown <=0){
+      clearInterval(timer);
+      fullImageContainer.style.display = 'none';
+      initPuzzle();
+    }
+  },1000);
 }
 
-function createSlots() {
+function initPuzzle(){
   container.innerHTML = '';
-  for(let i=0;i<9;i++){
-    const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.dataset.index = i;
-    container.appendChild(slot);
-  }
-}
-
-function createPieces() {
   pieces = [];
-  const positions = [];
-  for(let i=0;i<9;i++){ positions.push(i); }
-  positions.sort(()=> Math.random()-0.5); // 打亂
+  correctCount = 0;
 
-  for(let i=0;i<9;i++){
-    const div = document.createElement('div');
-    div.className='piece';
-    div.style.backgroundImage=`url(${fullImage})`;
-    div.style.backgroundPosition=`${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
+  // 建立 3x3 空格
+  const slots = [];
+  for(let r=0;r<gridSize;r++){
+    for(let c=0;c<gridSize;c++){
+      const slot = document.createElement('div');
+      slot.className='slot';
+      slot.dataset.row=r;
+      slot.dataset.col=c;
+      container.appendChild(slot);
+      slots.push(slot);
+    }
+  }
 
-    // 隨機放入黑格裡
-    const slot = container.children[positions[i]];
-    div.style.left = slot.offsetLeft + 'px';
-    div.style.top = slot.offsetTop + 'px';
-
-    div.dataset.index = i;
-    container.appendChild(div);
-    pieces.push(div);
-
-    makeDraggable(div);
+  // 建立拼圖塊
+  for(let i=0;i<gridSize*gridSize;i++){
+    const piece = document.createElement('div');
+    piece.className='piece';
+    piece.style.backgroundImage=`url(${fullImage.src})`;
+    const row = Math.floor(i/gridSize);
+    const col = i%gridSize;
+    piece.dataset.row = row;
+    piece.dataset.col = col;
+    piece.style.backgroundPosition = `${-col*100}px ${-row*100}px`;
+    // 隨機放置在 container 外
+    piece.style.left = `${Math.random()*300}px`;
+    piece.style.top = `${320 + Math.random()*200}px`;
+    piece.dataset.locked = 'false';
+    piece.style.zIndex = 100;
+    addDragEvents(piece);
+    container.appendChild(piece);
+    pieces.push(piece);
   }
 }
 
-function makeDraggable(el){
+function addDragEvents(piece){
   let offsetX, offsetY;
-  let dragging = false;
-
-  function startDrag(e){
-    if(el.dataset.correct) return; // 拼對鎖定
+  function dragStart(e){
     e.preventDefault();
-    dragging = true;
-    el.style.zIndex = 100;
-    const rect = el.getBoundingClientRect();
+    if(piece.dataset.locked==='true') return;
+    piece.style.zIndex=200; // 拖曳時置頂
+    const rect = piece.getBoundingClientRect();
+    const parentRect = container.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     offsetX = clientX - rect.left;
     offsetY = clientY - rect.top;
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchmove', onDrag);
-    document.addEventListener('touchend', endDrag);
+    document.addEventListener('mousemove', dragging);
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchmove', dragging);
+    document.addEventListener('touchend', dragEnd);
   }
 
-  function onDrag(e){
-    if(!dragging) return;
+  function dragging(e){
+    e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const containerRect = container.getBoundingClientRect();
-    el.style.left = (clientX - containerRect.left - offsetX) + 'px';
-    el.style.top = (clientY - containerRect.top - offsetY) + 'px';
+    const parentRect = container.getBoundingClientRect();
+    let x = clientX - parentRect.left - offsetX;
+    let y = clientY - parentRect.top - offsetY;
+    piece.style.left = `${x}px`;
+    piece.style.top = `${y}px`;
   }
 
-  function endDrag(){
-    if(!dragging) return;
-    dragging=false;
+  function dragEnd(e){
+    document.removeEventListener('mousemove', dragging);
+    document.removeEventListener('mouseup', dragEnd);
+    document.removeEventListener('touchmove', dragging);
+    document.removeEventListener('touchend', dragEnd);
+    checkPosition(piece);
+  }
 
-    // 檢查是否放對
-    const index = parseInt(el.dataset.index);
-    const slot = container.children[index];
-    const dx = el.offsetLeft - slot.offsetLeft;
-    const dy = el.offsetTop - slot.offsetTop;
-    if(Math.abs(dx)<30 && Math.abs(dy)<30 && !el.dataset.correct){
-      el.style.left = slot.offsetLeft + 'px';
-      el.style.top = slot.offsetTop + 'px';
-      el.style.border = 'none';
-      el.style.cursor = 'default';
-      el.style.zIndex = 0; // 拼對後移到下層
-      el.dataset.correct = 'true';
-      correctCount++;
-      if(correctCount===9){ showQuiz(); }
+  piece.addEventListener('mousedown', dragStart);
+  piece.addEventListener('touchstart', dragStart, {passive:false});
+}
+
+function checkPosition(piece){
+  const row = parseInt(piece.dataset.row);
+  const col = parseInt(piece.dataset.col);
+  const slot = document.querySelector(`.slot[data-row='${row}'][data-col='${col}']`);
+  const rectPiece = piece.getBoundingClientRect();
+  const rectSlot = slot.getBoundingClientRect();
+  const tolerance = 30;
+  if(Math.abs(rectPiece.left - rectSlot.left)<tolerance && Math.abs(rectPiece.top - rectSlot.top)<tolerance){
+    // 拼對位置
+    piece.style.left = `${slot.offsetLeft}px`;
+    piece.style.top = `${slot.offsetTop}px`;
+    piece.dataset.locked='true';
+    piece.style.border='none';
+    piece.style.zIndex=50; // 下層
+    correctCount++;
+    if(correctCount === gridSize*gridSize){
+      showQuestion();
     }
-    document.removeEventListener('mousemove', onDrag);
-    document.removeEventListener('mouseup', endDrag);
-    document.removeEventListener('touchmove', onDrag);
-    document.removeEventListener('touchend', endDrag);
   }
-
-  el.addEventListener('mousedown', startDrag);
-  el.addEventListener('touchstart', startDrag, {passive:false});
 }
 
-function showQuiz(){
-  quiz.style.display='block';
+function showQuestion(){
+  questionDiv.style.display='block';
 }
 
-document.querySelectorAll('.quiz-btn').forEach(btn=>{
+questionDiv.querySelectorAll('button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    // 假設 B 選項正確
-    if(btn.textContent.includes('B')){
-      quiz.style.display='none';
-      success.style.display='block';
-    } else {
-      alert('答錯了，請再試一次');
+    const answer = parseInt(btn.dataset.answer);
+    if(answer===1){ // 假設正確是 1
+      alert('恭喜通關！');
+      questionDiv.style.display='none';
+      startBtn.style.display='inline-block';
+      container.innerHTML='';
+    }else{
+      alert('答錯，再試一次！');
     }
   });
 });
 
-startBtn.addEventListener('click', ()=>{
-  startBtn.style.display='none';
-  correctCount=0;
-  showFullImage();
-});
-
-restartBtn.addEventListener('click', ()=>{
-  success.style.display='none';
-  container.style.display='none';
-  startBtn.style.display='inline-block';
-});
+startBtn.addEventListener('click', startGame);
 </script>
-
 </body>
 </html>
