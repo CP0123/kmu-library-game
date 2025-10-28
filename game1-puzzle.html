@@ -2,180 +2,143 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
+<title>拼圖遊戲</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>現代化拼圖遊戲</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ===== 整體佈局 ===== */
-body {
-  font-family: "Noto Sans TC", sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-  color: #333;
-}
+  body { 
+    font-family: "Noto Sans TC", sans-serif; 
+    text-align:center; 
+    margin:0; 
+    padding:0;
+    background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
+    color:#333;
+  }
 
-/* ===== 標題 ===== */
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: #1f2937;
-}
+  /* 卡片樣式 */
+  #intro-card {
+    width: 90%;
+    max-width: 400px;
+    margin: 80px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    padding: 30px 20px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  #intro-card.hide {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+  }
+  #intro-card h2 {
+    color: #28a745;
+    margin-bottom: 15px;
+  }
+  #intro-card p {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
 
-/* ===== 按鈕 ===== */
-button {
-  margin: 10px;
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  /* 開始按鈕 */
+  #startBtn {
+    margin-top: 10px;
+    padding: 15px 50px;
+    font-size: 20px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  #startBtn:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+  }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
+  #full-image-container img { width:300px; height:300px; border-radius:10px; }
+  #countdown { font-weight:bold; color:#555; }
 
-/* 主要按鈕 */
-#startBtn {
-  background-color: #28a745;
-  color: #fff;
-  font-weight: bold;
-  padding: 20px 50px;
-  font-size: 1.5rem;
-}
+  #puzzle-container { 
+    display: grid; 
+    grid-template-columns: repeat(3, 100px); 
+    grid-template-rows: repeat(3, 100px);
+    gap: 0; 
+    margin: 20px auto; 
+    position: relative;
+    width: max-content;
+    height: max-content;
+    display:none;
+    background-color: black;
+  }
 
-#startBtn:hover {
-  background-color: #218838;
-}
+  .slot {
+    width: 100px; height: 100px;
+    background-color: black;
+    border: 1px solid white;
+    position: relative;
+  }
 
-/* ===== 拼圖區塊 ===== */
-#puzzle-container {
-  display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-gap: 10px;
-  margin-top: 30px;
-  position: relative;
-}
+  .piece { 
+    width: 100px; height: 100px; 
+    background-size: 300px 300px; 
+    border: 2px solid red; 
+    cursor: grab;
+    position: absolute;
+    touch-action: none;
+    border-radius: 4px;
+  }
 
-.slot {
-  width: 100px;
-  height: 100px;
-  background-color: #111;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
-  position: relative;
-}
+  .quiz, #success { margin-top:20px; display:none; }
 
-.piece {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
-  cursor: grab;
-  position: absolute;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-  transition: left 0.2s, top 0.2s;
-  background-size: 300px 300px;
-}
+  .quiz-btn, #restartBtn {
+    margin: 10px;
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    color: white;
+    background-color: #17a2b8;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  .quiz-btn:hover, #restartBtn:hover {
+    background-color: #138496;
+    transform: scale(1.05);
+  }
+  #success h3 { color: #28a745; }
 
-/* ===== 記憶圖像 & 倒數 ===== */
-#full-image-container {
-  position: relative;
-  margin-top: 20px;
-}
-
-#full-image-container img {
-  width: 300px;
-  height: 300px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-
-#countdown {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
-  background: rgba(0,0,0,0.5);
-  padding: 8px 16px;
-  border-radius: 12px;
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* ===== 問答區塊 ===== */
-.quiz, #success {
-  margin-top: 30px;
-  display: none;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  width: 320px;
-}
-
-.quiz p {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-}
-
-.quiz-btn {
-  display: block;
-  width: 90%;
-  margin: 10px auto;
-  padding: 12px 0;
-  font-size: 1rem;
-  border-radius: 20px;
-  border: 1px solid #28a745;
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.quiz-btn:hover {
-  background-color: #28a745;
-  color: #fff;
-}
-
-#success {
-  font-size: 1.3rem;
-  color: #0f5132;
-  font-weight: bold;
-  text-align: center;
-}
 </style>
 </head>
 <body>
 
-<h1>現代化拼圖遊戲</h1>
-
-<button id="startBtn">開始遊玩</button>
-
-<div id="full-image-container">
-  <img src="puzzle.jpg" alt="完整圖片">
-  <div id="countdown">5</div>
+<!-- 🧩 遊戲介紹卡片 -->
+<div id="intro-card">
+  <h2>拼圖挑戰遊戲</h2>
+  <p>記憶圖片 → 拼圖 → 回答問題 → 完成闖關！</p>
+  <button id="startBtn">開始遊玩</button>
 </div>
 
-<div id="puzzle-container">
-  <!-- 拼圖格子 & 拼圖塊會用 JS 生成 -->
+<!-- 顯示完整圖片與倒數 -->
+<div id="full-image-container"></div>
+
+<!-- 拼圖區域 -->
+<div id="puzzle-container"></div>
+
+<!-- 問答區 -->
+<div class="quiz" id="quiz">
+  <h3>完成拼圖！請回答問答題：</h3>
+  <button class="quiz-btn">A 選項</button>
+  <button class="quiz-btn">B 選項</button>
+  <button class="quiz-btn">C 選項</button>
+  <button class="quiz-btn">D 選項</button>
 </div>
 
-<div class="quiz">
-  <p>請選擇正確答案：</p>
-  <button class="quiz-btn">選項 A</button>
-  <button class="quiz-btn">選項 B</button>
-  <button class="quiz-btn">選項 C</button>
+<!-- 通關畫面 -->
+<div id="success">
+  <h3>🎉 恭喜通關！</h3>
+  <button id="restartBtn">重新遊玩</button>
 </div>
-
-<div id="success">恭喜完成拼圖！<button id="restartBtn">重新遊玩</button></div>
 
 <script>
 const startBtn = document.getElementById('startBtn');
@@ -184,8 +147,9 @@ const container = document.getElementById('puzzle-container');
 const fullImageContainer = document.getElementById('full-image-container');
 const quiz = document.getElementById('quiz');
 const success = document.getElementById('success');
+const introCard = document.getElementById('intro-card');
 
-const fullImage = 'img/puzzle.jpg'; // 請換成你的拼圖圖檔
+const fullImage = 'img/puzzle.jpg'; // 你的拼圖圖檔
 let correctCount = 0;
 let pieces = [];
 
@@ -222,9 +186,10 @@ function createSlots() {
 
 function createPieces() {
   pieces = [];
+  correctCount = 0;
   const positions = [];
   for(let i=0;i<9;i++){ positions.push(i); }
-  positions.sort(()=> Math.random()-0.5); // 打亂
+  positions.sort(()=> Math.random()-0.5);
 
   for(let i=0;i<9;i++){
     const div = document.createElement('div');
@@ -320,15 +285,18 @@ document.querySelectorAll('.quiz-btn').forEach(btn=>{
 });
 
 startBtn.addEventListener('click', ()=>{
-  startBtn.style.display='none';
-  correctCount=0;
-  showFullImage();
+  introCard.classList.add('hide');
+  setTimeout(()=>{
+    introCard.style.display='none';
+    showFullImage();
+  },500);
 });
 
 restartBtn.addEventListener('click', ()=>{
   success.style.display='none';
   container.style.display='none';
-  startBtn.style.display='inline-block';
+  introCard.style.display='block';
+  introCard.classList.remove('hide');
 });
 </script>
 
