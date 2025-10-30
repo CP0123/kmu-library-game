@@ -1,297 +1,237 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>知識挑戰遊戲</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body { 
-    font-family: "Noto Sans TC", sans-serif; 
-    text-align:center; 
-    margin:0; 
-    padding:0;
-    background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
-    color:#333;
-  }
-
-  /* 卡片樣式 */
-  #intro-card {
-    width: 90%;
-    max-width: 400px;
-    margin: 60px auto;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    padding: 30px 20px;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  #intro-card.hide {
-    opacity: 0;
-    transform: scale(0.95);
-    pointer-events: none;
-  }
-  #intro-card h2 {
-    color: #28a745;
-    margin-bottom: 15px;
-  }
-  #intro-card p {
-    font-size: 18px;
-    margin-bottom: 20px;
-  }
-
-  /* 開始按鈕 */
-  #startBtn {
-    margin-top: 10px;
-    padding: 15px 50px;
-    font-size: 20px;
-    color: #fff;
-    background-color: #28a745;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-  }
-  #startBtn:hover {
-    background-color: #218838;
-    transform: scale(1.05);
-  }
-
-  /* 內容區（翻書 + 題目） */
-  #content-wrapper {
-    display:none;
-    width: 95%;
-    max-width: 900px;
-    margin: 30px auto;
-    gap: 20px;
-  }
-
-  /* 上方翻書文本區 */
-  #book {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-    padding: 18px;
-    text-align: left;
-  }
-  #page-text {
-    font-size: 17px;
-    line-height: 1.7;
-    min-height: 90px;
-    margin-bottom: 12px;
-  }
-  .page-controls {
-    text-align: right;
-  }
-  .page-btn {
-    background: #17a2b8;
-    color: white;
-    border: none;
-    border-radius: 18px;
-    padding: 8px 14px;
-    margin-left: 8px;
-    cursor: pointer;
-  }
-  .page-btn:disabled { opacity: 0.5; cursor: default; }
-  .page-btn:hover:not(:disabled) { background: #138496; }
-
-  /* 下方問答區 */
-  #quiz {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-    padding: 18px;
-    margin-top: 12px;
-    text-align: left;
-  }
-  #question { font-size: 18px; color:#333; margin-bottom:10px; }
-  #q-meta { font-size: 13px; color:#666; margin-bottom:8px; }
-
-  .quiz-btn, #restartBtn {
-    display:inline-block;
-    margin: 8px 8px 0 0;
-    padding: 10px 18px;
-    font-size: 15px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    color: white;
-    background-color: #17a2b8;
-    transition: background-color 0.25s, transform 0.12s;
-  }
-  .quiz-btn:hover { background-color: #138496; transform: translateY(-2px); }
-  #success { display:none; margin-top:18px; }
-  #success h3 { color:#28a745; }
-
-  /* 響應式 - 大螢幕左右並列 */
-  @media (min-width:900px) {
-    #content-wrapper { display:flex; align-items:flex-start; }
-    #book, #quiz { flex:1; }
-    #book { margin-right: 14px; }
-  }
-
-  /* 小螢幕堆疊 */
-  @media (max-width:899px) {
-    #content-wrapper { display:block; }
-    #book, #quiz { margin: 0 auto 12px auto; width: 95%; max-width: 700px; }
-  }
-
-</style>
-</head>
-<body>
-
-<!-- 遊戲介紹 -->
-<div id="intro-card">
-  <h2>知識挑戰遊戲</h2>
-  <p>上方可翻閱文本（提示），下方為答題區。邊看文本邊答題，完成三題即可通關！</p>
-  <button id="startBtn">開始遊玩</button>
-</div>
-
-<!-- 內容區：上方翻書 + 下方答題（同時顯示） -->
-<div id="content-wrapper">
-  <!-- 翻書文本區 -->
-  <div id="book">
-    <div id="page-text"></div>
-    <div class="page-controls">
-      <button class="page-btn" id="prev-page">◀ 上一頁</button>
-      <span id="page-indicator" style="font-size:13px;color:#666;margin-left:8px;"></span>
-      <button class="page-btn" id="next-page">下一頁 ▶</button>
-    </div>
-  </div>
-
-  <!-- 問答區 -->
-  <div id="quiz">
-    <div id="q-meta"></div>
-    <div id="question"></div>
-    <div id="options"></div>
-
-    <div id="success">
-      <h3>🎉 恭喜通關！你完成了所有挑戰！</h3>
-      <button id="restartBtn">重新遊玩</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* DOM */
-const startBtn = document.getElementById('startBtn');
-const introCard = document.getElementById('intro-card');
-const contentWrapper = document.getElementById('content-wrapper');
-const book = document.getElementById('book');
-const pageText = document.getElementById('page-text');
-const prevPage = document.getElementById('prev-page');
-const nextPage = document.getElementById('next-page');
-const pageIndicator = document.getElementById('page-indicator');
-
-const quiz = document.getElementById('quiz');
-const questionEl = document.getElementById('question');
-const optionsEl = document.getElementById('options');
-const qMeta = document.getElementById('q-meta');
-const success = document.getElementById('success');
-const restartBtn = document.getElementById('restartBtn');
-
-/* 翻書頁面內容（可依需求修改） */
-const pages = [
-  "這本書記錄了一位醫師為了拯救病患，使用自己的皮膚進行移植的故事。描述了手術背景與家庭情感。",
-  "這項手術名為「割膚之愛」，象徵父親為孩子付出，手術涉及皮膚移植的倫理與情感張力。",
-  "這幅畫作現今收藏於高雄醫學大學校史館，作為醫學人文與歷史的展示來源。"
-];
-let currentPage = 0;
-
-/* 三題問答（題目、選項、答案以字母開頭對應） */
-const questions = [
-  {
-    q: "這幅畫作的主題最接近下列哪一項？",
-    options: ["A. 異體皮膚移植", "B. 自體皮膚移植", "C. 父親捐皮給孩子"],
-    answer: "C"
-  },
-  {
-    q: "「割膚之愛」現今保存於？",
-    options: ["A. 高雄醫學大學校史館", "B. 醫院手術室", "C. 美術館"],
-    answer: "A"
-  },
-  {
-    q: "關於這幅畫，下列敘述何者有誤？",
-    options: ["A. 描繪父親為孩子的手術", "B. 與醫學人文無關", "C. 收藏於校史館"],
-    answer: "B"
-  }
-];
-let currentQuestion = 0;
-
-/* 顯示翻頁內容（不隱藏題目區，兩者同時可見） */
-function showPage() {
-  pageText.textContent = pages[currentPage];
-  prevPage.disabled = currentPage === 0;
-  nextPage.disabled = currentPage === pages.length - 1;
-  pageIndicator.textContent = `第 ${currentPage + 1} 頁 / 共 ${pages.length} 頁`;
-}
-
-/* 顯示題目（會一直顯示於下方） */
-function showQuestion() {
-  const q = questions[currentQuestion];
-  qMeta.textContent = `題目 ${currentQuestion + 1} / ${questions.length}`;
-  questionEl.textContent = q.q;
-  optionsEl.innerHTML = '';
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-btn';
-    btn.textContent = opt;
-    btn.addEventListener('click', () => checkAnswer(opt));
-    optionsEl.appendChild(btn);
-  });
-}
-
-/* 檢查答案 */
-function checkAnswer(selected) {
-  const correct = questions[currentQuestion].answer;
-  if (selected.startsWith(correct)) {
-    currentQuestion++;
-    if (currentQuestion < questions.length) {
-      // 顯示提示與下一題
-      alert('答對了！進入下一題');
-      showQuestion();
-    } else {
-      // 通關
-      optionsEl.innerHTML = '';
-      questionEl.textContent = '';
-      qMeta.textContent = '';
-      success.style.display = 'block';
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 任務挑戰</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background: linear-gradient(to bottom right, #eef2ff, #ffffff);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-  } else {
-    alert('答錯了，請再試一次');
-  }
-}
 
-/* 事件綁定 */
-prevPage.addEventListener('click', () => {
-  if (currentPage > 0) { currentPage--; showPage(); }
-});
-nextPage.addEventListener('click', () => {
-  if (currentPage < pages.length - 1) { currentPage++; showPage(); }
-});
+    /* --- Intro Card --- */
+    .intro-card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 500px;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .intro-card.hide {
+      opacity: 0;
+      transform: scale(0.95);
+    }
 
-startBtn.addEventListener('click', () => {
-  introCard.classList.add('hide');
-  setTimeout(() => {
-    introCard.style.display = 'none';
-    contentWrapper.style.display = 'block';
-    showPage();
-    showQuestion();
-  }, 300);
-});
+    /* --- 隱藏區塊用 --- */
+    #content-wrapper.hidden {
+      display: none !important;
+    }
 
-restartBtn.addEventListener('click', () => {
-  // reset
-  currentPage = 0;
-  currentQuestion = 0;
-  success.style.display = 'none';
-  contentWrapper.style.display = 'none';
-  introCard.style.display = 'block';
-  introCard.classList.remove('hide');
-});
+    /* --- 淡入動畫 --- */
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* 初始化（如直接開啟可選擇自動顯示） */
-// showPage(); showQuestion();
-</script>
+    /* --- 主要內容區 --- */
+    #content-wrapper {
+      width: 90%;
+      max-width: 800px;
+      flex-direction: column;
+      gap: 20px;
+    }
 
+    .text-block, .quiz-block {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
+
+    .text-block h2 {
+      color: #4f46e5;
+      margin-bottom: 8px;
+    }
+
+    .quiz-block h3 {
+      color: #4338ca;
+      margin-bottom: 12px;
+    }
+
+    .option-btn {
+      width: 100%;
+      margin: 6px 0;
+      padding: 12px;
+      border: 2px solid #e0e7ff;
+      border-radius: 10px;
+      background: #f8fafc;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .option-btn:hover {
+      background: #e0e7ff;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      font-weight: bold;
+      text-align: center;
+      color: #4f46e5;
+    }
+
+    .success {
+      display: none;
+      text-align: center;
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+
+    /* --- 響應式設定 --- */
+    @media (min-width:900px) {
+      #content-wrapper {
+        display: flex;
+      }
+    }
+    @media (max-width:899px) {
+      #content-wrapper {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 初始介紹卡 -->
+  <div class="intro-card" id="intro-card">
+    <h1>🎯 AI 任務挑戰</h1>
+    <p>歡迎冒險者！請準備好迎接任務挑戰。</p>
+    <button id="start-btn"
+      style="padding:12px 24px;background:#4f46e5;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px;">
+      開始遊玩
+    </button>
+  </div>
+
+  <!-- 任務內容區 -->
+  <div id="content-wrapper" class="hidden">
+    <div class="text-block fade-in" id="text-block">
+      <h2>任務說明</h2>
+      <p id="question-text">這是一題測驗題的範例，請選擇正確答案。</p>
+    </div>
+
+    <div class="quiz-block fade-in" id="quiz-block">
+      <h3>請選擇你的答案：</h3>
+      <div id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="success" id="success">
+      <h2>🎉 恭喜完成任務！</h2>
+      <button id="restart-btn"
+        style="padding:12px 24px;background:#4f46e5;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px;">
+        重新遊玩
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const introCard = document.getElementById('intro-card');
+    const startBtn = document.getElementById('start-btn');
+    const contentWrapper = document.getElementById('content-wrapper');
+    const questionText = document.getElementById('question-text');
+    const optionsDiv = document.getElementById('options');
+    const feedback = document.getElementById('feedback');
+    const success = document.getElementById('success');
+    const restartBtn = document.getElementById('restart-btn');
+
+    const questions = [
+      {
+        text: "AI 是什麼的縮寫？",
+        options: ["Artificial Intelligence", "Auto Information", "Active Internet"],
+        answer: "Artificial Intelligence"
+      },
+      {
+        text: "哪個工具能生成圖片？",
+        options: ["ChatGPT", "DALL·E", "Excel"],
+        answer: "DALL·E"
+      },
+      {
+        text: "Firebase 是用來？",
+        options: ["資料庫與後端服務", "影像編輯", "音樂創作"],
+        answer: "資料庫與後端服務"
+      }
+    ];
+
+    let current = 0;
+
+    function showQuestion() {
+      const q = questions[current];
+      questionText.textContent = q.text;
+      optionsDiv.innerHTML = "";
+      feedback.textContent = "";
+
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.onclick = () => handleAnswer(opt);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(opt) {
+      const q = questions[current];
+      if (opt === q.answer) {
+        feedback.textContent = "✅ 恭喜答對！";
+        setTimeout(() => {
+          current++;
+          if (current < questions.length) {
+            showQuestion();
+          } else {
+            document.getElementById("text-block").style.display = "none";
+            document.getElementById("quiz-block").style.display = "none";
+            success.style.display = "block";
+          }
+        }, 800);
+      } else {
+        feedback.textContent = "❌ 再試一次！";
+      }
+    }
+
+    startBtn.addEventListener("click", () => {
+      introCard.classList.add("hide");
+      setTimeout(() => {
+        introCard.style.display = "none";
+        contentWrapper.classList.remove("hidden"); // 顯示內容
+        contentWrapper.classList.add("fade-in");
+        showQuestion();
+      }, 400);
+    });
+
+    restartBtn.addEventListener("click", () => {
+      current = 0;
+      success.style.display = "none";
+      document.getElementById("text-block").style.display = "block";
+      document.getElementById("quiz-block").style.display = "block";
+      contentWrapper.classList.add("hidden"); // 隱藏內容
+      introCard.style.display = "block";
+      introCard.classList.remove("hide");
+    });
+  </script>
 </body>
 </html>
