@@ -1,129 +1,271 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>記憶翻牌</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>記憶翻牌遊戲</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: "Noto Sans TC", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
+  color: #333;
+}
 
-    #board {
-      display: grid;
-      grid-template-columns: repeat(4, 100px);
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
+/* 開場卡片 */
+#intro-card {
+  width: 90%;
+  max-width: 400px;
+  margin: 60px auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  padding: 30px 20px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#intro-card.hide {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  display: none;
+}
+#intro-card h2 {
+  color: #28a745;
+  margin-bottom: 15px;
+}
+#intro-card p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
 
-    .card {
-      width: 100px;
-      height: 100px;
-      background-color: #ccc;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 8px;
-      overflow: hidden;
-      transition: transform 0.3s;
-    }
+/* 開始按鈕 */
+#startBtn {
+  margin-top: 10px;
+  padding: 15px 50px;
+  font-size: 20px;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+#startBtn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
 
-    .card:hover {
-      transform: scale(1.05);
-    }
+/* 翻牌遊戲主體 */
+#game-container.hidden {
+  display: none !important;
+}
+#game-container {
+  width: 95%;
+  max-width: 500px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
 
-    .card img {
-      width: 90%;
-      height: 90%;
-      display: none;
-      object-fit: cover;
-      border-radius: 6px;
-    }
+#board {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
 
-    .green-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #4CAF50;
-      color: white;
-      padding: 8px 12px;
-      text-decoration: none;
-      border-radius: 5px;
-    }
+/* 卡片樣式 */
+.card {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  perspective: 800px;
+}
 
-    .green-btn:hover {
-      background: #45a049;
-    }
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
 
-    #startBtn {
-      margin-top: 10px;
-      padding: 8px 16px;
-      font-size: 16px;
-    }
-  </style>
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card-front {
+  background-color: #fff;
+  transform: rotateY(180deg);
+}
+
+.card-front img, .card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-back {
+  background-color: #ccc;
+}
+
+/* 通關提示 */
+#success {
+  display: none;
+  margin-top: 20px;
+}
+#success h3 {
+  color: #28a745;
+}
+#restartBtn {
+  padding: 10px 24px;
+  font-size: 16px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.25s, transform 0.12s;
+}
+#restartBtn:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+}
+</style>
 </head>
+
 <body>
-  <a href="index.html" class="green-btn">返回互動遊戲</a>
-  <h2>記憶翻牌</h2>
+
+<!-- 遊戲開場卡片 -->
+<div id="intro-card">
+  <h2>🃏 記憶翻牌挑戰</h2>
+  <p>翻開兩張相同圖案的卡片即可配對成功！試著配完所有牌吧！</p>
   <button id="startBtn">開始遊玩</button>
+</div>
+
+<!-- 翻牌區 -->
+<div id="game-container" class="hidden">
+  <h2>記憶翻牌遊戲</h2>
   <div id="board"></div>
+  <div id="success">
+    <h3>🎉 恭喜通關！你完成了所有配對！</h3>
+    <button id="restartBtn">重新遊玩</button>
+  </div>
+</div>
 
-  <script>
-    const startBtn = document.getElementById('startBtn');
-    const board = document.getElementById('board');
+<script>
+const startBtn = document.getElementById('startBtn');
+const introCard = document.getElementById('intro-card');
+const gameContainer = document.getElementById('game-container');
+const board = document.getElementById('board');
+const success = document.getElementById('success');
+const restartBtn = document.getElementById('restartBtn');
 
-    startBtn.addEventListener('click', () => {
-      board.innerHTML = '';
-      
-      // 建立圖片陣列，每組兩張（圖片放在 img 資料夾中）
-      let cards = [];
-      for(let i = 1; i <= 8; i++) {
-        cards.push({pair: i, src: `img/${i}-1.png`});
-        cards.push({pair: i, src: `img/${i}-2.png`});
-      }
+let flipped = [];
+let lockBoard = false;
 
-      // 洗牌
-      cards.sort(() => Math.random() - 0.5);
+// 初始化遊戲
+function setupGame() {
+  board.innerHTML = '';
+  success.style.display = 'none';
 
-      let flipped = [];
+  let cards = [];
+  for(let i=1; i<=8; i++){
+    cards.push({pair: i, src: `img/${i}-1.png`});
+    cards.push({pair: i, src: `img/${i}-2.png`});
+  }
 
-      cards.forEach(card => {
-        let div = document.createElement('div');
-        div.className = 'card';
-        div.dataset.pair = card.pair;
+  cards.sort(() => Math.random() - 0.5);
 
-        let img = document.createElement('img');
-        img.src = card.src;
-        div.appendChild(img);
+  cards.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card';
+    cardDiv.dataset.pair = card.pair;
 
-        div.addEventListener('click', () => {
-          if (flipped.length < 2 && img.style.display === 'none') {
-            img.style.display = 'block';
-            flipped.push(div);
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
 
-            if (flipped.length === 2) {
-              if (flipped[0].dataset.pair === flipped[1].dataset.pair) {
-                flipped = [];
-                // 判斷是否全部翻完
-                if ([...board.children].every(c => c.querySelector('img').style.display === 'block')) {
-                  setTimeout(() => alert('🎉 通關成功！'), 300);
-                }
-              } else {
-                setTimeout(() => {
-                  flipped.forEach(c => c.querySelector('img').style.display = 'none');
-                  flipped = [];
-                }, 800);
-              }
-            }
-          }
-        });
+    const front = document.createElement('div');
+    front.className = 'card-front';
+    const frontImg = document.createElement('img');
+    frontImg.src = card.src;
+    front.appendChild(frontImg);
 
-        board.appendChild(div);
-      });
-    });
-  </script>
+    const back = document.createElement('div');
+    back.className = 'card-back';
+    const backImg = document.createElement('img');
+    backImg.src = 'img/back.png'; // ✅ 背面圖放這裡
+    back.appendChild(backImg);
+
+    inner.appendChild(front);
+    inner.appendChild(back);
+    cardDiv.appendChild(inner);
+
+    cardDiv.addEventListener('click', () => flipCard(cardDiv));
+    board.appendChild(cardDiv);
+  });
+}
+
+function flipCard(card) {
+  if (lockBoard || card.classList.contains('flipped')) return;
+
+  card.classList.add('flipped');
+  flipped.push(card);
+
+  if (flipped.length === 2) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const [first, second] = flipped;
+  const isMatch = first.dataset.pair === second.dataset.pair;
+
+  if (isMatch) {
+    flipped = [];
+    checkWin();
+  } else {
+    lockBoard = true;
+    setTimeout(() => {
+      flipped.forEach(c => c.classList.remove('flipped'));
+      flipped = [];
+      lockBoard = false;
+    }, 900);
+  }
+}
+
+function checkWin() {
+  const allFlipped = [...board.children].every(c => c.classList.contains('flipped'));
+  if (allFlipped) {
+    setTimeout(() => success.style.display = 'block', 400);
+  }
+}
+
+/* 事件綁定 */
+startBtn.addEventListener('click', () => {
+  introCard.classList.add('hide');
+  gameContainer.classList.remove('hidden');
+  setupGame();
+});
+
+restartBtn.addEventListener('click', () => {
+  setupGame();
+});
+</script>
 </body>
 </html>
