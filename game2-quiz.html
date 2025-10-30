@@ -14,15 +14,15 @@ body {
   color: #333;
 }
 
-/* 卡片樣式 */
+/* 開始卡片 */
 #intro-card {
-  width: 90%;
-  max-width: 400px;
-  margin: 60px auto;
+  width: 92%;
+  max-width: 600px;
+  margin: 80px auto;
   background: white;
-  border-radius: 20px;
+  border-radius: 25px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  padding: 30px 20px;
+  padding: 40px 30px;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 #intro-card.hide {
@@ -32,18 +32,20 @@ body {
 }
 #intro-card h2 {
   color: #28a745;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 #intro-card p {
-  font-size: 18px;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
+  margin-bottom: 25px;
+  line-height: 1.6;
 }
 
 /* 開始按鈕 */
 #startBtn {
-  margin-top: 10px;
-  padding: 15px 50px;
-  font-size: 20px;
+  margin-top: 15px;
+  padding: 18px 60px;
+  font-size: 1.3rem;
   color: #fff;
   background-color: #28a745;
   border: none;
@@ -56,43 +58,45 @@ body {
   transform: scale(1.05);
 }
 
-/* 內容區（翻書 + 題目） */
+/* 主內容區 */
 #content-wrapper.hidden {
   display: none !important;
 }
 #content-wrapper {
   width: 95%;
-  max-width: 900px;
-  margin: 30px auto;
-  gap: 20px;
+  max-width: 1100px;
+  margin: 40px auto;
+  gap: 30px;
 }
 
 /* 上方圖片翻頁區 */
 #book {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  padding: 18px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 24px;
   text-align: center;
 }
 #page-img {
   width: 100%;
-  max-height: 400px;
+  max-height: 600px;
   object-fit: contain;
-  border-radius: 10px;
-  margin-bottom: 12px;
+  border-radius: 15px;
+  margin-bottom: 15px;
 }
 .page-controls {
   text-align: right;
+  font-size: 1.1rem;
 }
 .page-btn {
   background: #17a2b8;
   color: white;
   border: none;
-  border-radius: 18px;
-  padding: 8px 14px;
-  margin-left: 8px;
+  border-radius: 22px;
+  padding: 10px 18px;
+  margin-left: 10px;
   cursor: pointer;
+  font-size: 1.1rem;
 }
 .page-btn:disabled {
   opacity: 0.5;
@@ -105,29 +109,30 @@ body {
 /* 下方問答區 */
 #quiz {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  padding: 18px;
-  margin-top: 12px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 28px;
+  margin-top: 20px;
   text-align: left;
 }
 #question {
-  font-size: 18px;
+  font-size: 1.3rem;
   color: #333;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  line-height: 1.6;
 }
 #q-meta {
-  font-size: 13px;
+  font-size: 1rem;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .quiz-btn, #restartBtn {
   display: inline-block;
-  margin: 8px 8px 0 0;
-  padding: 10px 18px;
-  font-size: 15px;
+  margin: 10px 10px 0 0;
+  padding: 14px 24px;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 20px;
+  border-radius: 30px;
   cursor: pointer;
   color: white;
   background-color: #17a2b8;
@@ -139,14 +144,16 @@ body {
 }
 #success {
   display: none;
-  margin-top: 18px;
+  margin-top: 25px;
+  text-align: center;
 }
 #success h3 {
   color: #28a745;
+  font-size: 1.4rem;
 }
 
-/* 響應式 - 大螢幕左右並列 */
-@media (min-width: 900px) {
+/* 桌機版左右並排 */
+@media (min-width: 1000px) {
   #content-wrapper {
     display: flex;
     align-items: flex-start;
@@ -155,19 +162,22 @@ body {
     flex: 1;
   }
   #book {
-    margin-right: 14px;
+    margin-right: 20px;
   }
 }
 
-/* 小螢幕堆疊 */
-@media (max-width: 899px) {
+/* 手機／平板堆疊 */
+@media (max-width: 999px) {
   #content-wrapper {
     display: block;
   }
   #book, #quiz {
-    margin: 0 auto 12px auto;
-    width: 95%;
-    max-width: 700px;
+    margin: 0 auto 20px auto;
+    width: 96%;
+    max-width: 850px;
+  }
+  #page-img {
+    max-height: 400px;
   }
 }
 </style>
@@ -181,20 +191,17 @@ body {
   <button id="startBtn">開始遊玩</button>
 </div>
 
-<!-- 內容區：上方圖片 + 下方答題 -->
+<!-- 主內容 -->
 <div id="content-wrapper" class="hidden">
-
-  <!-- 圖片翻頁區 -->
   <div id="book">
     <img id="page-img" src="" alt="提示圖片">
     <div class="page-controls">
       <button class="page-btn" id="prev-page">◀ 上一頁</button>
-      <span id="page-indicator" style="font-size:13px;color:#666;margin-left:8px;"></span>
+      <span id="page-indicator" style="margin-left:10px;color:#555;"></span>
       <button class="page-btn" id="next-page">下一頁 ▶</button>
     </div>
   </div>
 
-  <!-- 問答區 -->
   <div id="quiz">
     <div id="q-meta"></div>
     <div id="question"></div>
@@ -207,7 +214,7 @@ body {
 </div>
 
 <script>
-/* DOM */
+/* DOM 元件 */
 const startBtn = document.getElementById('startBtn');
 const introCard = document.getElementById('intro-card');
 const contentWrapper = document.getElementById('content-wrapper');
@@ -221,7 +228,7 @@ const optionsEl = document.getElementById('options');
 const success = document.getElementById('success');
 const restartBtn = document.getElementById('restartBtn');
 
-/* 圖片翻頁內容（可換成你自己的圖片 URL） */
+/* 圖片翻頁內容 */
 const pages = [
   "img/food0.png",
   "img/food1.png",
@@ -267,7 +274,7 @@ function checkAnswer(selected) {
   if (selected.startsWith(correct)) {
     currentQuestion++;
     if (currentQuestion < questions.length) {
-      alert('答對了！進入下一題');
+      alert('✅ 答對了！進入下一題');
       showQuestion();
     } else {
       optionsEl.innerHTML = '';
@@ -276,7 +283,7 @@ function checkAnswer(selected) {
       success.style.display = 'block';
     }
   } else {
-    alert('答錯了，請再試一次');
+    alert('❌ 答錯了，請再試一次');
   }
 }
 
@@ -294,7 +301,7 @@ nextPage.addEventListener('click', () => {
   }
 });
 
-/* 遊戲開始 */
+/* 開始遊戲 */
 startBtn.addEventListener('click', () => {
   introCard.classList.add('hide');
   setTimeout(() => {
