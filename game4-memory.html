@@ -71,9 +71,10 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
+/* 🔹 固定為4x4的翻牌區 */
 #board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   justify-content: center;
   margin-top: 20px;
@@ -83,7 +84,7 @@ body {
 .card {
   position: relative;
   width: 100%;
-  padding-top: 100%; /* 1:1 比例 */
+  padding-top: 100%; /* 保持正方形 */
   perspective: 800px;
 }
 
