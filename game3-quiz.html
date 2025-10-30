@@ -14,41 +14,42 @@ body {
   color: #333;
 }
 
-/* 卡片樣式 */
+/* 開場卡片 */
 #intro-card {
   width: 90%;
-  max-width: 400px;
-  margin: 60px auto;
+  max-width: 550px;
+  margin: 80px auto;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  padding: 30px 20px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  padding: 40px 30px;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 #intro-card.hide {
   opacity: 0;
   transform: scale(0.95);
   pointer-events: none;
-  display: none; /* ✅ 新增：完全移除空間佔位 */
+  display: none;
 }
 #intro-card h2 {
   color: #28a745;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 #intro-card p {
-  font-size: 18px;
-  margin-bottom: 20px;
+  font-size: 20px;
+  margin-bottom: 24px;
+  line-height: 1.6;
 }
 
 /* 開始按鈕 */
 #startBtn {
-  margin-top: 10px;
-  padding: 15px 50px;
-  font-size: 20px;
+  padding: 18px 60px;
+  font-size: 22px;
   color: #fff;
   background-color: #28a745;
   border: none;
-  border-radius: 50px;
+  border-radius: 60px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
@@ -57,25 +58,25 @@ body {
   transform: scale(1.05);
 }
 
-/* 內容區（iframe + 題目） */
+/* 主內容區 */
 #content-wrapper.hidden {
   display: none !important;
 }
 #content-wrapper {
   width: 95%;
-  max-width: 900px;
-  margin: 30px auto;
-  gap: 20px;
+  max-width: 1200px;
+  margin: 40px auto;
+  gap: 24px;
 }
 
-/* iframe 區 */
+/* iframe 區域 */
 #iframe-container {
   width: 100%;
-  height: 400px;
-  border-radius: 12px;
+  height: 600px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  margin-bottom: 12px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
 }
 #iframe-container iframe {
   width: 100%;
@@ -83,32 +84,32 @@ body {
   border: none;
 }
 
-/* 下方問答區 */
+/* 問答區 */
 #quiz {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  padding: 18px;
-  margin-top: 12px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+  padding: 28px;
+  margin-top: 16px;
   text-align: left;
 }
 #question {
-  font-size: 18px;
+  font-size: 22px;
   color: #333;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 #q-meta {
-  font-size: 13px;
+  font-size: 16px;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .quiz-btn, #restartBtn {
   display: inline-block;
-  margin: 8px 8px 0 0;
-  padding: 10px 18px;
-  font-size: 15px;
+  margin: 10px 10px 0 0;
+  padding: 14px 26px;
+  font-size: 18px;
   border: none;
-  border-radius: 20px;
+  border-radius: 30px;
   cursor: pointer;
   color: white;
   background-color: #17a2b8;
@@ -118,16 +119,20 @@ body {
   background-color: #138496;
   transform: translateY(-2px);
 }
+
+/* 通關區 */
 #success {
   display: none;
-  margin-top: 18px;
+  margin-top: 20px;
+  text-align: center;
 }
 #success h3 {
   color: #28a745;
+  font-size: 1.5rem;
 }
 
-/* 響應式 - 大螢幕左右並列 */
-@media (min-width: 900px) {
+/* RWD — 大螢幕左右排列 */
+@media (min-width: 992px) {
   #content-wrapper {
     display: flex;
     align-items: flex-start;
@@ -136,36 +141,49 @@ body {
     flex: 1;
   }
   #iframe-container {
-    margin-right: 14px;
+    margin-right: 20px;
   }
 }
 
-/* 小螢幕堆疊 */
-@media (max-width: 899px) {
+/* RWD — 平板與手機 */
+@media (max-width: 991px) {
   #content-wrapper {
     display: block;
   }
-  #iframe-container, #quiz {
-    margin: 0 auto 12px auto;
+  #iframe-container {
+    height: 55vh;
+  }
+  #quiz {
+    margin: 0 auto 16px auto;
     width: 95%;
-    max-width: 700px;
+  }
+  #intro-card h2 {
+    font-size: 1.6rem;
+  }
+  #intro-card p {
+    font-size: 17px;
+  }
+  #startBtn {
+    padding: 14px 50px;
+    font-size: 20px;
   }
 }
 </style>
 </head>
 
 <body>
-<!-- 遊戲介紹 -->
+
+<!-- 開場畫面 -->
 <div id="intro-card">
   <h2>知識挑戰遊戲（iframe版）</h2>
   <p>上方為提示網頁，下方為答題區。邊看網頁邊答題，完成三題即可通關！</p>
   <button id="startBtn">開始遊玩</button>
 </div>
 
-<!-- 內容區：上方 iframe + 下方答題 -->
+<!-- 遊戲內容區 -->
 <div id="content-wrapper" class="hidden">
 
-  <!-- iframe 區 -->
+  <!-- iframe -->
   <div id="iframe-container">
     <iframe src="https://sweb01.kmu.edu.tw/history/olis/app-files/index.html" title="提示網頁"></iframe>
   </div>
@@ -183,7 +201,7 @@ body {
 </div>
 
 <script>
-/* DOM */
+/* DOM 元素 */
 const startBtn = document.getElementById('startBtn');
 const introCard = document.getElementById('intro-card');
 const contentWrapper = document.getElementById('content-wrapper');
@@ -193,7 +211,7 @@ const optionsEl = document.getElementById('options');
 const success = document.getElementById('success');
 const restartBtn = document.getElementById('restartBtn');
 
-/* 問答題目 */
+/* 題目設定 */
 const questions = [
   { q: "圖片中的動物是？", options: ["A. 狗", "B. 貓", "C. 馬"], answer: "A" },
   { q: "圖片主要顏色屬於哪個色系？", options: ["A. 藍綠", "B. 橘紅", "C. 黑白"], answer: "B" },
@@ -222,7 +240,7 @@ function checkAnswer(selected) {
   if (selected.startsWith(correct)) {
     currentQuestion++;
     if (currentQuestion < questions.length) {
-      alert('答對了！進入下一題');
+      alert('✅ 答對了！進入下一題');
       showQuestion();
     } else {
       optionsEl.innerHTML = '';
@@ -231,7 +249,7 @@ function checkAnswer(selected) {
       success.style.display = 'block';
     }
   } else {
-    alert('答錯了，請再試一次');
+    alert('❌ 答錯了，請再試一次');
   }
 }
 
@@ -244,17 +262,13 @@ startBtn.addEventListener('click', () => {
   showQuestion();
 });
 
-/* 重新遊玩 → 回到開場畫面 */
+/* 重新遊玩 */
 restartBtn.addEventListener('click', () => {
-  // 隱藏答題區
   contentWrapper.classList.add('hidden');
-  // 顯示開場畫面
   introCard.classList.remove('hide');
-  // 重置狀態
   currentQuestion = 0;
   success.style.display = 'none';
 });
-  
 </script>
 </body>
 </html>
