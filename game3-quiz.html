@@ -5,21 +5,24 @@
 <title>知識挑戰遊戲（iframe版）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {
-  font-family: "Noto Sans TC", sans-serif;
-  text-align: center;
+html, body {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  font-family: "Noto Sans TC", sans-serif;
   background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
   color: #333;
+  text-align: center;
 }
 
 /* 開場卡片 */
 #intro-card {
   width: 90%;
   max-width: 550px;
-  margin: 80px auto;
-  background: white;
+  margin: 10vh auto;
+  background: #fff;
   border-radius: 24px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
   padding: 40px 30px;
@@ -58,30 +61,34 @@ body {
   transform: scale(1.05);
 }
 
-/* 主內容區 */
+/* 主內容容器 */
 #content-wrapper.hidden {
   display: none !important;
 }
 #content-wrapper {
-  width: 95%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: 1200px;
-  margin: 40px auto;
-  gap: 24px;
+  margin: 30px auto;
+  padding: 0 10px;
+  box-sizing: border-box;
+  gap: 20px;
 }
 
 /* iframe 區域 */
 #iframe-container {
   width: 100%;
-  height: 600px;
+  aspect-ratio: 16/9;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
 }
 #iframe-container iframe {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
 }
 
 /* 問答區 */
@@ -90,8 +97,9 @@ body {
   border-radius: 16px;
   box-shadow: 0 8px 18px rgba(0,0,0,0.1);
   padding: 28px;
-  margin-top: 16px;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 #question {
   font-size: 22px;
@@ -120,7 +128,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* 通關區 */
+/* 通關提示 */
 #success {
   display: none;
   margin-top: 20px;
@@ -131,10 +139,10 @@ body {
   font-size: 1.5rem;
 }
 
-/* RWD — 大螢幕左右排列 */
+/* 🔹 RWD：大螢幕左右排列 */
 @media (min-width: 992px) {
   #content-wrapper {
-    display: flex;
+    flex-direction: row;
     align-items: flex-start;
   }
   #iframe-container, #quiz {
@@ -145,17 +153,14 @@ body {
   }
 }
 
-/* RWD — 平板與手機 */
+/* 🔹 RWD：平板與手機調整 */
 @media (max-width: 991px) {
-  #content-wrapper {
-    display: block;
-  }
   #iframe-container {
-    height: 55vh;
+    aspect-ratio: 4/3;
   }
   #quiz {
-    margin: 0 auto 16px auto;
-    width: 95%;
+    font-size: 18px;
+    padding: 20px;
   }
   #intro-card h2 {
     font-size: 1.6rem;
@@ -180,10 +185,10 @@ body {
   <button id="startBtn">開始遊玩</button>
 </div>
 
-<!-- 遊戲內容區 -->
+<!-- 遊戲內容 -->
 <div id="content-wrapper" class="hidden">
 
-  <!-- iframe -->
+  <!-- iframe 區 -->
   <div id="iframe-container">
     <iframe src="https://sweb01.kmu.edu.tw/history/olis/app-files/index.html" title="提示網頁"></iframe>
   </div>
