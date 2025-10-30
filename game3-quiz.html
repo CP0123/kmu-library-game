@@ -224,14 +224,6 @@ const questions = [
 ];
 let currentQuestion = 0;
 
-/* 顯示圖片 */
-function showPage() {
-  pageImg.src = pages[currentPage];
-  prevPage.disabled = currentPage === 0;
-  nextPage.disabled = currentPage === pages.length - 1;
-  pageIndicator.textContent = `第 ${currentPage + 1} 頁 / 共 ${pages.length} 頁`;
-}
-
 /* 顯示題目 */
 function showQuestion() {
   const q = questions[currentQuestion];
@@ -265,20 +257,6 @@ function checkAnswer(selected) {
     alert('答錯了，請再試一次');
   }
 }
-
-/* 翻頁控制 */
-prevPage.addEventListener('click', () => {
-  if (currentPage > 0) {
-    currentPage--;
-    showPage();
-  }
-});
-nextPage.addEventListener('click', () => {
-  if (currentPage < pages.length - 1) {
-    currentPage++;
-    showPage();
-  }
-});
 
 /* 遊戲開始 */
 startBtn.addEventListener('click', () => {
