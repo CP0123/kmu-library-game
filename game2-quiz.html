@@ -1,51 +1,252 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>解憂食堂</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .green-btn { position: absolute; top: 10px; right: 10px; }
-    .question { margin:20px auto; font-size:18px; }
-    .options button { display:block; margin:10px auto; padding:10px 20px; }
-  </style>
+<meta charset="UTF-8">
+<title>知識挑戰遊戲</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { 
+    font-family: "Noto Sans TC", sans-serif; 
+    text-align:center; 
+    margin:0; 
+    padding:0;
+    background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
+    color:#333;
+  }
+
+  /* 卡片樣式 */
+  #intro-card {
+    width: 90%;
+    max-width: 400px;
+    margin: 80px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    padding: 30px 20px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  #intro-card.hide {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+  }
+  #intro-card h2 {
+    color: #28a745;
+    margin-bottom: 15px;
+  }
+  #intro-card p {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  /* 開始按鈕 */
+  #startBtn {
+    margin-top: 10px;
+    padding: 15px 50px;
+    font-size: 20px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  #startBtn:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+  }
+
+  /* 翻書文本區 */
+  #book {
+    display:none;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    padding: 20px;
+    position: relative;
+  }
+  #book p {
+    font-size: 18px;
+    line-height: 1.6;
+    min-height: 120px;
+  }
+  .page-btn {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    margin: 10px;
+    cursor: pointer;
+  }
+  .page-btn:hover { background: #138496; }
+
+  /* 問答區 */
+  .quiz, #success { margin-top:20px; display:none; }
+  .quiz h3 { color:#333; }
+
+  .quiz-btn, #restartBtn {
+    margin: 10px;
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    color: white;
+    background-color: #17a2b8;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  .quiz-btn:hover, #restartBtn:hover {
+    background-color: #138496;
+    transform: scale(1.05);
+  }
+  #success h3 { color: #28a745; }
+
+</style>
 </head>
 <body>
-  <a href="index.html" class="green-btn">返回互動遊戲</a>
-  <h2>解憂食堂 Demo</h2>
-  <div class="question" id="question"></div>
-  <div class="options" id="options"></div>
 
-  <script>
-    const questions = [
-      {q:'題目1', options:['A','B','C','D'], ans:0},
-      {q:'題目2', options:['A','B','C','D'], ans:2},
-      {q:'題目3', options:['A','B','C','D'], ans:1},
-      {q:'題目4', options:['A','B','C','D'], ans:3},
-      {q:'題目5', options:['A','B','C','D'], ans:0},
-    ];
-    let current=0;
-    const qDiv=document.getElementById('question');
-    const oDiv=document.getElementById('options');
+<!-- 🧩 遊戲介紹卡片 -->
+<div id="intro-card">
+  <h2>知識挑戰遊戲</h2>
+  <p>翻閱文本 → 找出答案 → 完成三題挑戰！</p>
+  <button id="startBtn">開始遊玩</button>
+</div>
 
-    function showQuestion(){
-      qDiv.textContent=questions[current].q;
-      oDiv.innerHTML='';
-      questions[current].options.forEach((opt,i)=>{
-        const btn=document.createElement('button');
-        btn.textContent=opt;
-        btn.addEventListener('click',()=>{
-          if(i===questions[current].ans){
-            alert('答對!');
-            current++;
-            if(current>=questions.length) alert('通關!');
-            else showQuestion();
-          } else alert('答錯，請再試一次');
-        });
-        oDiv.appendChild(btn);
-      });
-    }
+<!-- 📖 翻書文本區 -->
+<div id="book">
+  <p id="page-text"></p>
+  <button class="page-btn" id="prev-page">上一頁</button>
+  <button class="page-btn" id="next-page">下一頁</button>
+</div>
+
+<!-- 問答區 -->
+<div class="quiz" id="quiz">
+  <h3 id="question"></h3>
+  <div id="options"></div>
+</div>
+
+<!-- 通關畫面 -->
+<div id="success">
+  <h3>🎉 恭喜通關！你完成了所有挑戰！</h3>
+  <button id="restartBtn">重新遊玩</button>
+</div>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const introCard = document.getElementById('intro-card');
+const book = document.getElementById('book');
+const pageText = document.getElementById('page-text');
+const prevPage = document.getElementById('prev-page');
+const nextPage = document.getElementById('next-page');
+const quiz = document.getElementById('quiz');
+const success = document.getElementById('success');
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+
+// 模擬翻書文本
+const pages = [
+  "這本書記錄了一位醫師為了拯救病患，使用自己的皮膚進行移植的故事。",
+  "這項手術名為「割膚之愛」，代表父親願意為了孩子付出一切。",
+  "這幅畫作現今收藏於高雄醫學大學校史館，是醫學人文的象徵。"
+];
+let currentPage = 0;
+
+// 問題資料
+const questions = [
+  {
+    q: "Q1：這幅畫作的主題是什麼？",
+    options: ["A. 異體皮膚移植", "B. 自體皮膚移植", "C. 父親捐皮給孩子"],
+    answer: "C"
+  },
+  {
+    q: "Q2：「割膚之愛」現今保存在哪裡？",
+    options: ["A. 高雄醫學大學校史館", "B. 醫院手術室", "C. 美術館"],
+    answer: "A"
+  },
+  {
+    q: "Q3：關於這幅畫，下列敘述何者有誤？",
+    options: ["A. 描繪父親為孩子的手術", "B. 畫作與醫學人文無關", "C. 收藏於校史館"],
+    answer: "B"
+  }
+];
+
+let currentQuestion = 0;
+
+// 顯示翻書內容
+function showPage() {
+  pageText.textContent = pages[currentPage];
+  prevPage.disabled = currentPage === 0;
+  nextPage.disabled = currentPage === pages.length - 1;
+}
+
+// 開始遊戲
+startBtn.addEventListener('click', () => {
+  introCard.classList.add('hide');
+  setTimeout(()=>{
+    introCard.style.display='none';
+    book.style.display='block';
+    showPage();
+  },500);
+});
+
+// 翻頁功能
+prevPage.addEventListener('click', () => {
+  if(currentPage>0){ currentPage--; showPage(); }
+});
+nextPage.addEventListener('click', () => {
+  if(currentPage<pages.length-1){ currentPage++; showPage(); }
+  else { // 翻完最後一頁出題
+    book.style.display='none';
     showQuestion();
-  </script>
+  }
+});
+
+// 顯示題目
+function showQuestion(){
+  quiz.style.display='block';
+  const q = questions[currentQuestion];
+  questionEl.textContent = q.q;
+  optionsEl.innerHTML = '';
+  q.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>checkAnswer(opt));
+    optionsEl.appendChild(btn);
+  });
+}
+
+// 檢查答案
+function checkAnswer(selected){
+  const correct = questions[currentQuestion].answer;
+  if(selected.startsWith(correct)){
+    currentQuestion++;
+    if(currentQuestion < questions.length){
+      alert('答對了！進入下一題');
+      showQuestion();
+    } else {
+      quiz.style.display='none';
+      success.style.display='block';
+    }
+  } else {
+    alert('答錯了，請再試一次');
+  }
+}
+
+// 重新開始
+restartBtn.addEventListener('click', ()=>{
+  currentPage = 0;
+  currentQuestion = 0;
+  success.style.display='none';
+  introCard.style.display='block';
+  introCard.classList.remove('hide');
+});
+</script>
+
 </body>
 </html>
