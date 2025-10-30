@@ -2,123 +2,303 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
+<title>知識挑戰遊戲（圖片版）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>互動問答遊戲</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+body {
+  font-family: "Noto Sans TC", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
+  color: #333;
+}
+
+/* 卡片樣式 */
+#intro-card {
+  width: 90%;
+  max-width: 400px;
+  margin: 60px auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  padding: 30px 20px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#intro-card.hide {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+#intro-card h2 {
+  color: #28a745;
+  margin-bottom: 15px;
+}
+#intro-card p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* 開始按鈕 */
+#startBtn {
+  margin-top: 10px;
+  padding: 15px 50px;
+  font-size: 20px;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+#startBtn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+/* 內容區（翻書 + 題目） */
+#content-wrapper.hidden {
+  display: none !important;
+}
+#content-wrapper {
+  width: 95%;
+  max-width: 900px;
+  margin: 30px auto;
+  gap: 20px;
+}
+
+/* 上方圖片翻頁區 */
+#book {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  padding: 18px;
+  text-align: center;
+}
+#page-img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.page-controls {
+  text-align: right;
+}
+.page-btn {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.page-btn:hover:not(:disabled) {
+  background: #138496;
+}
+
+/* 下方問答區 */
+#quiz {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  padding: 18px;
+  margin-top: 12px;
+  text-align: left;
+}
+#question {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+#q-meta {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+.quiz-btn, #restartBtn {
+  display: inline-block;
+  margin: 8px 8px 0 0;
+  padding: 10px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  color: white;
+  background-color: #17a2b8;
+  transition: background-color 0.25s, transform 0.12s;
+}
+.quiz-btn:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+}
+#success {
+  display: none;
+  margin-top: 18px;
+}
+#success h3 {
+  color: #28a745;
+}
+
+/* 響應式 - 大螢幕左右並列 */
+@media (min-width: 900px) {
+  #content-wrapper {
+    display: flex;
+    align-items: flex-start;
+  }
+  #book, #quiz {
+    flex: 1;
   }
   #book {
-    width: 100%;
-    max-width: 800px;
-    margin: auto;
-    margin-bottom: 40px;
+    margin-right: 14px;
   }
-  iframe {
-    width: 100%;
-    height: 400px;
-    border: none;
-    border-radius: 10px;
-  }
-  #question-container {
-    width: 100%;
-    max-width: 800px;
-    margin: auto;
-    text-align: center;
-  }
-  .option-btn {
+}
+
+/* 小螢幕堆疊 */
+@media (max-width: 899px) {
+  #content-wrapper {
     display: block;
-    width: 80%;
-    max-width: 300px;
-    margin: 10px auto;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    border: 1px solid #333;
-    background-color: #f0f0f0;
-    transition: 0.2s;
   }
-  .option-btn:hover {
-    background-color: #ddd;
+  #book, #quiz {
+    margin: 0 auto 12px auto;
+    width: 95%;
+    max-width: 700px;
   }
-  #result {
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 18px;
-  }
+}
 </style>
 </head>
-<body>
 
-<!-- 上方 iframe 區 -->
-<div id="book">
-  <iframe id="page-iframe" src="https://sweb01.kmu.edu.tw/history/olis/app-files/index.html"></iframe>
+<body>
+<!-- 遊戲介紹 -->
+<div id="intro-card">
+  <h2>知識挑戰遊戲（圖片版）</h2>
+  <p>上方可翻閱圖片（提示），下方為答題區。邊看圖片邊答題，完成三題即可通關！</p>
+  <button id="startBtn">開始遊玩</button>
 </div>
 
-<!-- 下方問答區 -->
-<div id="question-container">
-  <div id="question">這裡會顯示題目</div>
-  <button class="option-btn" id="option1">選項 1</button>
-  <button class="option-btn" id="option2">選項 2</button>
-  <button class="option-btn" id="option3">選項 3</button>
-  <div id="result"></div>
+<!-- 內容區：上方圖片 + 下方答題 -->
+<div id="content-wrapper" class="hidden">
+
+  <!-- iframe 區 -->
+  <div id="book">
+    <iframe id="page-iframe" src="https://sweb01.kmu.edu.tw/history/olis/app-files/index.html" width="100%" height="400" frameborder="0" style="border-radius:10px;"></iframe>
+  </div>
+
+  <!-- 問答區 -->
+  <div id="quiz">
+    <div id="q-meta"></div>
+    <div id="question"></div>
+    <div id="options"></div>
+    <div id="success">
+      <h3>🎉 恭喜通關！你完成了所有挑戰！</h3>
+      <button id="restartBtn">重新遊玩</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // 範例題目設定
-  const questions = [
-    {
-      text: "下列哪個選項正確？",
-      options: ["選項A", "選項B", "選項C"],
-      answer: 0 // 正確答案 index
-    },
-    {
-      text: "選出正確答案",
-      options: ["選項1", "選項2", "選項3"],
-      answer: 2
-    }
-  ];
+/* DOM */
+const startBtn = document.getElementById('startBtn');
+const introCard = document.getElementById('intro-card');
+const contentWrapper = document.getElementById('content-wrapper');
+const pageImg = document.getElementById('page-img');
+const prevPage = document.getElementById('prev-page');
+const nextPage = document.getElementById('next-page');
+const pageIndicator = document.getElementById('page-indicator');
+const qMeta = document.getElementById('q-meta');
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const success = document.getElementById('success');
+const restartBtn = document.getElementById('restartBtn');
 
-  let currentQuestion = 0;
+/* 問答題目 */
+const questions = [
+  { q: "圖片中的動物是？", options: ["A. 狗", "B. 貓", "C. 馬"], answer: "A" },
+  { q: "圖片主要顏色屬於哪個色系？", options: ["A. 藍綠", "B. 橘紅", "C. 黑白"], answer: "B" },
+  { q: "這張圖片最可能拍攝於？", options: ["A. 山區", "B. 沙灘", "C. 農場"], answer: "C" }
+];
+let currentQuestion = 0;
 
-  const questionEl = document.getElementById("question");
-  const resultEl = document.getElementById("result");
-  const optionBtns = [
-    document.getElementById("option1"),
-    document.getElementById("option2"),
-    document.getElementById("option3")
-  ];
+/* 顯示圖片 */
+function showPage() {
+  pageImg.src = pages[currentPage];
+  prevPage.disabled = currentPage === 0;
+  nextPage.disabled = currentPage === pages.length - 1;
+  pageIndicator.textContent = `第 ${currentPage + 1} 頁 / 共 ${pages.length} 頁`;
+}
 
-  function loadQuestion() {
-    const q = questions[currentQuestion];
-    questionEl.textContent = q.text;
-    q.options.forEach((opt, index) => {
-      optionBtns[index].textContent = opt;
-    });
-    resultEl.textContent = "";
-  }
-
-  optionBtns.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      const q = questions[currentQuestion];
-      if (index === q.answer) {
-        resultEl.textContent = "答對了！";
-        currentQuestion++;
-        if (currentQuestion < questions.length) {
-          setTimeout(loadQuestion, 1000);
-        } else {
-          resultEl.textContent = "已完成所有題目！";
-        }
-      } else {
-        resultEl.textContent = "答錯了，請再試一次。";
-      }
-    });
+/* 顯示題目 */
+function showQuestion() {
+  const q = questions[currentQuestion];
+  qMeta.textContent = `題目 ${currentQuestion + 1} / ${questions.length}`;
+  questionEl.textContent = q.q;
+  optionsEl.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => checkAnswer(opt));
+    optionsEl.appendChild(btn);
   });
+}
 
-  loadQuestion();
+/* 檢查答案 */
+function checkAnswer(selected) {
+  const correct = questions[currentQuestion].answer;
+  if (selected.startsWith(correct)) {
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+      alert('答對了！進入下一題');
+      showQuestion();
+    } else {
+      optionsEl.innerHTML = '';
+      questionEl.textContent = '';
+      qMeta.textContent = '';
+      success.style.display = 'block';
+    }
+  } else {
+    alert('答錯了，請再試一次');
+  }
+}
+
+/* 翻頁控制 */
+prevPage.addEventListener('click', () => {
+  if (currentPage > 0) {
+    currentPage--;
+    showPage();
+  }
+});
+nextPage.addEventListener('click', () => {
+  if (currentPage < pages.length - 1) {
+    currentPage++;
+    showPage();
+  }
+});
+
+/* 遊戲開始 */
+startBtn.addEventListener('click', () => {
+  introCard.classList.add('hide');
+  setTimeout(() => {
+    introCard.style.display = 'none';
+    contentWrapper.classList.remove('hidden');
+    showQuestion();
+  }, 300);
+});
+
+/* 重新遊玩 */
+restartBtn.addEventListener('click', () => {
+  currentPage = 0;
+  currentQuestion = 0;
+  success.style.display = 'none';
+  contentWrapper.classList.add('hidden');
+  introCard.style.display = 'block';
+  introCard.classList.remove('hide');
+});
 </script>
-
 </body>
 </html>
