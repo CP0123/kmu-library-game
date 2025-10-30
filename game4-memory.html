@@ -63,8 +63,8 @@ body {
 }
 #game-container {
   width: 95%;
-  max-width: 500px;
-  margin: 30px auto;
+  max-width: 600px;
+  margin: 20px auto;
   background: #fff;
   border-radius: 20px;
   padding: 20px;
@@ -73,24 +73,26 @@ body {
 
 #board {
   display: grid;
-  grid-template-columns: repeat(4, 100px);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 10px;
   justify-content: center;
   margin-top: 20px;
 }
 
 /* 卡片樣式 */
 .card {
-  width: 100px;
-  height: 100px;
   position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 比例 */
   perspective: 800px;
 }
 
 .card-inner {
-  width: 100%;
-  height: 100%;
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   transition: transform 0.6s;
   transform-style: preserve-3d;
   cursor: pointer;
@@ -101,12 +103,12 @@ body {
 }
 
 .card-front, .card-back {
+  position: absolute;
   width: 100%;
   height: 100%;
-  position: absolute;
-  backface-visibility: hidden;
   border-radius: 10px;
   overflow: hidden;
+  backface-visibility: hidden;
 }
 
 .card-front {
@@ -145,6 +147,23 @@ body {
 #restartBtn:hover {
   background-color: #138496;
   transform: translateY(-2px);
+}
+
+/* 🔹 RWD 調整 */
+@media (max-width: 600px) {
+  #intro-card p {
+    font-size: 16px;
+  }
+  #startBtn {
+    padding: 12px 40px;
+    font-size: 18px;
+  }
+  #game-container {
+    padding: 15px;
+  }
+  #board {
+    gap: 8px;
+  }
 }
 </style>
 </head>
@@ -209,7 +228,7 @@ function setupGame() {
     const back = document.createElement('div');
     back.className = 'card-back';
     const backImg = document.createElement('img');
-    backImg.src = 'img/back.png'; // ✅ 背面圖放這裡
+    backImg.src = 'img/back.png';
     back.appendChild(backImg);
 
     inner.appendChild(front);
@@ -256,20 +275,17 @@ function checkWin() {
   }
 }
 
-/* 事件綁定 */
 startBtn.addEventListener('click', () => {
   introCard.classList.add('hide');
   gameContainer.classList.remove('hidden');
   setupGame();
 });
 
-// ✅ 重新開始 → 回到開場畫面
 restartBtn.addEventListener('click', () => {
   gameContainer.classList.add('hidden');
   introCard.classList.remove('hide');
   success.style.display = 'none';
 });
-  
 </script>
 </body>
 </html>
