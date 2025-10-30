@@ -18,7 +18,7 @@
   #intro-card {
     width: 90%;
     max-width: 400px;
-    margin: 80px auto;
+    margin: 60px auto;
     background: white;
     border-radius: 20px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -56,196 +56,241 @@
     transform: scale(1.05);
   }
 
-  /* 翻書文本區 */
-  #book {
+  /* 內容區（翻書 + 題目） */
+  #content-wrapper {
     display:none;
-    margin: 20px auto;
-    width: 90%;
-    max-width: 500px;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    padding: 20px;
-    position: relative;
+    width: 95%;
+    max-width: 900px;
+    margin: 30px auto;
+    gap: 20px;
   }
-  #book p {
-    font-size: 18px;
-    line-height: 1.6;
-    min-height: 120px;
+
+  /* 上方翻書文本區 */
+  #book {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    padding: 18px;
+    text-align: left;
+  }
+  #page-text {
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 90px;
+    margin-bottom: 12px;
+  }
+  .page-controls {
+    text-align: right;
   }
   .page-btn {
     background: #17a2b8;
     color: white;
     border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    margin: 10px;
+    border-radius: 18px;
+    padding: 8px 14px;
+    margin-left: 8px;
     cursor: pointer;
   }
-  .page-btn:hover { background: #138496; }
+  .page-btn:disabled { opacity: 0.5; cursor: default; }
+  .page-btn:hover:not(:disabled) { background: #138496; }
 
-  /* 問答區 */
-  .quiz, #success { margin-top:20px; display:none; }
-  .quiz h3 { color:#333; }
+  /* 下方問答區 */
+  #quiz {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    padding: 18px;
+    margin-top: 12px;
+    text-align: left;
+  }
+  #question { font-size: 18px; color:#333; margin-bottom:10px; }
+  #q-meta { font-size: 13px; color:#666; margin-bottom:8px; }
 
   .quiz-btn, #restartBtn {
-    margin: 10px;
-    padding: 12px 30px;
-    font-size: 16px;
+    display:inline-block;
+    margin: 8px 8px 0 0;
+    padding: 10px 18px;
+    font-size: 15px;
     border: none;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
     color: white;
     background-color: #17a2b8;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.25s, transform 0.12s;
   }
-  .quiz-btn:hover, #restartBtn:hover {
-    background-color: #138496;
-    transform: scale(1.05);
+  .quiz-btn:hover { background-color: #138496; transform: translateY(-2px); }
+  #success { display:none; margin-top:18px; }
+  #success h3 { color:#28a745; }
+
+  /* 響應式 - 大螢幕左右並列 */
+  @media (min-width:900px) {
+    #content-wrapper { display:flex; align-items:flex-start; }
+    #book, #quiz { flex:1; }
+    #book { margin-right: 14px; }
   }
-  #success h3 { color: #28a745; }
+
+  /* 小螢幕堆疊 */
+  @media (max-width:899px) {
+    #content-wrapper { display:block; }
+    #book, #quiz { margin: 0 auto 12px auto; width: 95%; max-width: 700px; }
+  }
 
 </style>
 </head>
 <body>
 
-<!-- 🧩 遊戲介紹卡片 -->
+<!-- 遊戲介紹 -->
 <div id="intro-card">
   <h2>知識挑戰遊戲</h2>
-  <p>翻閱文本 → 找出答案 → 完成三題挑戰！</p>
+  <p>上方可翻閱文本（提示），下方為答題區。邊看文本邊答題，完成三題即可通關！</p>
   <button id="startBtn">開始遊玩</button>
 </div>
 
-<!-- 📖 翻書文本區 -->
-<div id="book">
-  <p id="page-text"></p>
-  <button class="page-btn" id="prev-page">上一頁</button>
-  <button class="page-btn" id="next-page">下一頁</button>
-</div>
+<!-- 內容區：上方翻書 + 下方答題（同時顯示） -->
+<div id="content-wrapper">
+  <!-- 翻書文本區 -->
+  <div id="book">
+    <div id="page-text"></div>
+    <div class="page-controls">
+      <button class="page-btn" id="prev-page">◀ 上一頁</button>
+      <span id="page-indicator" style="font-size:13px;color:#666;margin-left:8px;"></span>
+      <button class="page-btn" id="next-page">下一頁 ▶</button>
+    </div>
+  </div>
 
-<!-- 問答區 -->
-<div class="quiz" id="quiz">
-  <h3 id="question"></h3>
-  <div id="options"></div>
-</div>
+  <!-- 問答區 -->
+  <div id="quiz">
+    <div id="q-meta"></div>
+    <div id="question"></div>
+    <div id="options"></div>
 
-<!-- 通關畫面 -->
-<div id="success">
-  <h3>🎉 恭喜通關！你完成了所有挑戰！</h3>
-  <button id="restartBtn">重新遊玩</button>
+    <div id="success">
+      <h3>🎉 恭喜通關！你完成了所有挑戰！</h3>
+      <button id="restartBtn">重新遊玩</button>
+    </div>
+  </div>
 </div>
 
 <script>
+/* DOM */
 const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
 const introCard = document.getElementById('intro-card');
+const contentWrapper = document.getElementById('content-wrapper');
 const book = document.getElementById('book');
 const pageText = document.getElementById('page-text');
 const prevPage = document.getElementById('prev-page');
 const nextPage = document.getElementById('next-page');
+const pageIndicator = document.getElementById('page-indicator');
+
 const quiz = document.getElementById('quiz');
-const success = document.getElementById('success');
 const questionEl = document.getElementById('question');
 const optionsEl = document.getElementById('options');
+const qMeta = document.getElementById('q-meta');
+const success = document.getElementById('success');
+const restartBtn = document.getElementById('restartBtn');
 
-// 模擬翻書文本
+/* 翻書頁面內容（可依需求修改） */
 const pages = [
-  "這本書記錄了一位醫師為了拯救病患，使用自己的皮膚進行移植的故事。",
-  "這項手術名為「割膚之愛」，代表父親願意為了孩子付出一切。",
-  "這幅畫作現今收藏於高雄醫學大學校史館，是醫學人文的象徵。"
+  "這本書記錄了一位醫師為了拯救病患，使用自己的皮膚進行移植的故事。描述了手術背景與家庭情感。",
+  "這項手術名為「割膚之愛」，象徵父親為孩子付出，手術涉及皮膚移植的倫理與情感張力。",
+  "這幅畫作現今收藏於高雄醫學大學校史館，作為醫學人文與歷史的展示來源。"
 ];
 let currentPage = 0;
 
-// 問題資料
+/* 三題問答（題目、選項、答案以字母開頭對應） */
 const questions = [
   {
-    q: "Q1：這幅畫作的主題是什麼？",
+    q: "這幅畫作的主題最接近下列哪一項？",
     options: ["A. 異體皮膚移植", "B. 自體皮膚移植", "C. 父親捐皮給孩子"],
     answer: "C"
   },
   {
-    q: "Q2：「割膚之愛」現今保存在哪裡？",
+    q: "「割膚之愛」現今保存於？",
     options: ["A. 高雄醫學大學校史館", "B. 醫院手術室", "C. 美術館"],
     answer: "A"
   },
   {
-    q: "Q3：關於這幅畫，下列敘述何者有誤？",
-    options: ["A. 描繪父親為孩子的手術", "B. 畫作與醫學人文無關", "C. 收藏於校史館"],
+    q: "關於這幅畫，下列敘述何者有誤？",
+    options: ["A. 描繪父親為孩子的手術", "B. 與醫學人文無關", "C. 收藏於校史館"],
     answer: "B"
   }
 ];
-
 let currentQuestion = 0;
 
-// 顯示翻書內容
+/* 顯示翻頁內容（不隱藏題目區，兩者同時可見） */
 function showPage() {
   pageText.textContent = pages[currentPage];
   prevPage.disabled = currentPage === 0;
   nextPage.disabled = currentPage === pages.length - 1;
+  pageIndicator.textContent = `第 ${currentPage + 1} 頁 / 共 ${pages.length} 頁`;
 }
 
-// 開始遊戲
-startBtn.addEventListener('click', () => {
-  introCard.classList.add('hide');
-  setTimeout(()=>{
-    introCard.style.display='none';
-    book.style.display='block';
-    showPage();
-  },500);
-});
-
-// 翻頁功能
-prevPage.addEventListener('click', () => {
-  if(currentPage>0){ currentPage--; showPage(); }
-});
-nextPage.addEventListener('click', () => {
-  if(currentPage<pages.length-1){ currentPage++; showPage(); }
-  else { // 翻完最後一頁出題
-    book.style.display='none';
-    showQuestion();
-  }
-});
-
-// 顯示題目
-function showQuestion(){
-  quiz.style.display='block';
+/* 顯示題目（會一直顯示於下方） */
+function showQuestion() {
   const q = questions[currentQuestion];
+  qMeta.textContent = `題目 ${currentQuestion + 1} / ${questions.length}`;
   questionEl.textContent = q.q;
   optionsEl.innerHTML = '';
-  q.options.forEach(opt=>{
+  q.options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'quiz-btn';
     btn.textContent = opt;
-    btn.addEventListener('click', ()=>checkAnswer(opt));
+    btn.addEventListener('click', () => checkAnswer(opt));
     optionsEl.appendChild(btn);
   });
 }
 
-// 檢查答案
-function checkAnswer(selected){
+/* 檢查答案 */
+function checkAnswer(selected) {
   const correct = questions[currentQuestion].answer;
-  if(selected.startsWith(correct)){
+  if (selected.startsWith(correct)) {
     currentQuestion++;
-    if(currentQuestion < questions.length){
+    if (currentQuestion < questions.length) {
+      // 顯示提示與下一題
       alert('答對了！進入下一題');
       showQuestion();
     } else {
-      quiz.style.display='none';
-      success.style.display='block';
+      // 通關
+      optionsEl.innerHTML = '';
+      questionEl.textContent = '';
+      qMeta.textContent = '';
+      success.style.display = 'block';
     }
   } else {
     alert('答錯了，請再試一次');
   }
 }
 
-// 重新開始
-restartBtn.addEventListener('click', ()=>{
+/* 事件綁定 */
+prevPage.addEventListener('click', () => {
+  if (currentPage > 0) { currentPage--; showPage(); }
+});
+nextPage.addEventListener('click', () => {
+  if (currentPage < pages.length - 1) { currentPage++; showPage(); }
+});
+
+startBtn.addEventListener('click', () => {
+  introCard.classList.add('hide');
+  setTimeout(() => {
+    introCard.style.display = 'none';
+    contentWrapper.style.display = 'block';
+    showPage();
+    showQuestion();
+  }, 300);
+});
+
+restartBtn.addEventListener('click', () => {
+  // reset
   currentPage = 0;
   currentQuestion = 0;
-  success.style.display='none';
-  introCard.style.display='block';
+  success.style.display = 'none';
+  contentWrapper.style.display = 'none';
+  introCard.style.display = 'block';
   introCard.classList.remove('hide');
 });
+
+/* 初始化（如直接開啟可選擇自動顯示） */
+// showPage(); showQuestion();
 </script>
 
 </body>
