@@ -244,12 +244,17 @@ startBtn.addEventListener('click', () => {
   showQuestion();
 });
 
-/* 重新遊玩 */
+/* 重新遊玩 → 回到開場畫面 */
 restartBtn.addEventListener('click', () => {
+  // 隱藏答題區
+  contentWrapper.classList.add('hidden');
+  // 顯示開場畫面
+  introCard.classList.remove('hide');
+  // 重置狀態
   currentQuestion = 0;
   success.style.display = 'none';
-  showQuestion();
 });
+  
 </script>
 </body>
 </html>
