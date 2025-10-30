@@ -2,137 +2,132 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>不規則拼圖遊戲</title>
+<title>拼圖遊戲</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { 
-  font-family: "Noto Sans TC", sans-serif; 
-  text-align:center; 
-  margin:0; 
-  padding:0;
-  background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
-  color:#333;
+body {
+    font-family: "Noto Sans TC", sans-serif;
+    text-align:center;
+    margin:0;
+    padding:0;
+    background: linear-gradient(135deg, #f8f9fa, #e9f7ef);
+    color:#333;
 }
-
 /* 卡片樣式 */
 #intro-card {
-  width: 90%;
-  max-width: 500px;
-  margin: 80px auto;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  padding: 30px 20px;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+    width: 90%;
+    max-width: 90%;
+    margin: 80px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    padding: 30px 20px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 #intro-card.hide {
-  opacity: 0;
-  transform: scale(0.95);
-  pointer-events: none;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
 }
-#intro-card h2 {
-  color: #28a745;
-  margin-bottom: 15px;
-}
-#intro-card p {
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
+#intro-card h2 { color: #28a745; margin-bottom: 15px; }
+#intro-card p { font-size: 18px; margin-bottom: 20px; }
 /* 開始按鈕 */
 #startBtn {
-  margin-top: 10px;
-  padding: 15px 50px;
-  font-size: 20px;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+    padding: 15px 50px;
+    font-size: 20px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
-#startBtn:hover {
-  background-color: #218838;
-  transform: scale(1.05);
-}
+#startBtn:hover { background-color: #218838; transform: scale(1.05); }
 
 #full-image-container img { width:300px; height:300px; border-radius:10px; }
 #countdown { font-weight:bold; color:#555; }
 
-#puzzle-container { 
-  position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 20px auto;
-  display:none;
+#puzzle-container {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 0;
+    margin: 20px auto;
+    position: relative;
+    width: max-content;
+    height: max-content;
+    display:none;
+    background-color: black;
 }
 
-.piece { 
-  width: 100px; height: 100px; 
-  background-size: 300px 300px; 
-  cursor: grab;
-  position: absolute;
-  touch-action: none;
-  transition: left 0.2s, top 0.2s;
+.slot {
+    width: 100px;
+    height: 100px;
+    background-color: black;
+    border: 1px solid white;
+    position: relative;
 }
 
-/* 拼圖形狀 */
-.piece-0 { clip-path: polygon(0% 0%, 70% 0%, 100% 30%, 100% 70%, 30% 100%, 0% 70%); }
-.piece-1 { clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 70% 100%, 0% 100%); }
-.piece-2 { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 70%); }
-.piece-3 { clip-path: polygon(0% 0%, 70% 0%, 100% 30%, 100% 100%, 0% 100%); }
-.piece-4 { clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%); }
-.piece-5 { clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 70%, 0% 30%); }
-.piece-6 { clip-path: polygon(0% 0%, 100% 0%, 70% 30%, 100% 100%, 0% 100%); }
-.piece-7 { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 70%); }
-.piece-8 { clip-path: polygon(0% 0%, 70% 0%, 100% 30%, 100% 100%, 0% 70%); }
+.piece {
+    width: 100px;
+    height: 100px;
+    background-size: 300px 300px;
+    border: 2px solid red;
+    cursor: grab;
+    position: absolute;
+    touch-action: none;
+    border-radius: 4px;
+    clip-path: polygon(
+        15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%
+    ); /* 傳統拼圖形狀 */
+}
 
 .quiz, #success { margin-top:20px; display:none; }
-
 .quiz-btn, #restartBtn {
-  margin: 10px;
-  padding: 12px 30px;
-  font-size: 16px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  color: white;
-  background-color: #17a2b8;
-  transition: background-color 0.3s, transform 0.2s;
+    margin: 10px;
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    color: white;
+    background-color: #17a2b8;
+    transition: background-color 0.3s, transform 0.2s;
 }
-.quiz-btn:hover, #restartBtn:hover {
-  background-color: #138496;
-  transform: scale(1.05);
-}
+.quiz-btn:hover, #restartBtn:hover { background-color: #138496; transform: scale(1.05); }
 #success h3 { color: #28a745; }
-
 </style>
 </head>
 <body>
-
+<!-- 🧩 遊戲介紹卡片 -->
 <div id="intro-card">
-  <h2>不規則拼圖挑戰遊戲</h2>
-  <p>記憶圖片 → 拼圖 → 回答問題 </p>
-  <button id="startBtn">開始遊玩</button>
+    <h2>拼圖挑戰遊戲</h2>
+    <p>記憶圖片 → 拼圖 → 回答問題 </p>
+    <button id="startBtn">開始遊玩</button>
 </div>
 
+<!-- 顯示完整圖片與倒數 -->
 <div id="full-image-container"></div>
 
+<!-- 拼圖區域 -->
 <div id="puzzle-container"></div>
 
+<!-- 問答區 -->
 <div class="quiz" id="quiz">
-  <h3>完成拼圖！<br>Q：關於本畫作「割膚之愛」的敘述，何者有誤？<br></h3>
-  <p>A.原作保存於高雄醫學大學校史館。</p>
-  <p>B.描繪異體皮膚移植手術。</p>
-  <p>C.該手術使用父親皮膚移植給小孩。</p>
-  <button class="quiz-btn">A</button>
-  <button class="quiz-btn">B</button>
-  <button class="quiz-btn">C</button>
+    <h3>完成拼圖！<br>Q：關於本畫作「割膚之愛」的敘述，何者有誤？<br></h3>
+    <p>A.原作保存於高雄醫學大學校史館。</p>
+    <p>B.描繪異體皮膚移植手術。</p>
+    <p>C.該手術使用父親皮膚移植給小孩。</p>
+    <button class="quiz-btn">A</button>
+    <button class="quiz-btn">B</button>
+    <button class="quiz-btn">C</button>
 </div>
 
+<!-- 通關畫面 -->
 <div id="success">
-  <h3>🎉 恭喜通關！</h3>
-  <button id="restartBtn">重新遊玩</button>
+    <h3>🎉 恭喜通關！</h3>
+    <button id="restartBtn">重新遊玩</button>
 </div>
 
 <script>
@@ -143,120 +138,142 @@ const fullImageContainer = document.getElementById('full-image-container');
 const quiz = document.getElementById('quiz');
 const success = document.getElementById('success');
 const introCard = document.getElementById('intro-card');
-
-const fullImage = 'img/puzzle.jpg'; // 替換你的圖片路徑
+const fullImage = 'img/puzzle.jpg'; // 你的拼圖圖檔
 let correctCount = 0;
 let pieces = [];
 
-startBtn.addEventListener('click', ()=>{ introCard.classList.add('hide'); showFullImage(); });
-restartBtn.addEventListener('click', ()=>{ location.reload(); });
-
 function showFullImage() {
-  let countdown = 5;
-  fullImageContainer.innerHTML = `<img src="${fullImage}"><p id="countdown">請於 ${countdown} 秒內記憶此圖片</p>`;
-  
-  const timer = setInterval(()=>{
-    countdown--;
-    document.getElementById('countdown').textContent = `請於 ${countdown} 秒內記憶此圖片`;
-    if(countdown<=0){
-      clearInterval(timer);
-      fullImageContainer.innerHTML='';
-      startPuzzle();
-    }
-  }, 1000);
+    let countdown = 5;
+    fullImageContainer.innerHTML = `<img src="${fullImage}"><p id="countdown">請於 ${countdown} 秒內記憶此圖片</p>`;
+    const timer = setInterval(()=>{
+        countdown--;
+        document.getElementById('countdown').textContent = `請於 ${countdown} 秒內記憶此圖片`;
+        if(countdown<=0){
+            clearInterval(timer);
+            fullImageContainer.innerHTML='';
+            startPuzzle();
+        }
+    }, 1000);
 }
 
 function startPuzzle(){
-  container.style.display='block';
-  createPieces();
+    container.style.display='grid';
+    createSlots();
+    createPieces();
 }
 
-function createPieces(){
-  correctCount = 0;
-  const order = [...Array(9).keys()].sort(()=>Math.random()-0.5);
+function createSlots() {
+    container.innerHTML = '';
+    for(let i=0;i<9;i++){
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.dataset.index = i;
+        container.appendChild(slot);
+    }
+}
 
-  for(let i=0;i<9;i++){
-    const div = document.createElement('div');
-    div.className = `piece piece-${i}`;
-    div.style.backgroundImage=`url(${fullImage})`;
-    div.style.backgroundPosition=`${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
-
-    // 隨機初始位置
-    div.style.left = Math.random()*200 + 'px';
-    div.style.top = Math.random()*200 + 'px';
-
-    div.dataset.index = i;
-    container.appendChild(div);
-    pieces.push(div);
-
-    makeDraggable(div);
-  }
+function createPieces() {
+    pieces = [];
+    correctCount = 0;
+    const positions = [];
+    for(let i=0;i<9;i++){ positions.push(i); }
+    positions.sort(()=> Math.random()-0.5);
+    for(let i=0;i<9;i++){
+        const div = document.createElement('div');
+        div.className='piece';
+        div.style.backgroundImage=`url(${fullImage})`;
+        div.style.backgroundPosition=`${-100*(i%3)}px ${-100*Math.floor(i/3)}px`;
+        const slot = container.children[positions[i]];
+        div.style.left = slot.offsetLeft + 'px';
+        div.style.top = slot.offsetTop + 'px';
+        div.dataset.index = i;
+        div.style.zIndex = 10;
+        container.appendChild(div);
+        pieces.push(div);
+        makeDraggable(div);
+    }
 }
 
 function makeDraggable(el){
-  let offsetX, offsetY;
-  let dragging=false;
+    let offsetX, offsetY;
+    let dragging = false;
 
-  function startDrag(e){
-    if(el.dataset.correct) return;
-    e.preventDefault();
-    dragging=true;
-    const rect = el.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    offsetX = clientX - rect.left;
-    offsetY = clientY - rect.top;
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchmove', onDrag);
-    document.addEventListener('touchend', endDrag);
-  }
-
-  function onDrag(e){
-    if(!dragging) return;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    el.style.left = clientX - offsetX - container.getBoundingClientRect().left + 'px';
-    el.style.top = clientY - offsetY - container.getBoundingClientRect().top + 'px';
-  }
-
-  function endDrag(e){
-    dragging=false;
-    document.removeEventListener('mousemove', onDrag);
-    document.removeEventListener('mouseup', endDrag);
-    document.removeEventListener('touchmove', onDrag);
-    document.removeEventListener('touchend', endDrag);
-
-    const idx = parseInt(el.dataset.index);
-    const correctX = 100*(idx%3);
-    const correctY = 100*Math.floor(idx/3);
-    const left = parseInt(el.style.left);
-    const top = parseInt(el.style.top);
-
-    if(Math.abs(left-correctX)<20 && Math.abs(top-correctY)<20){
-      el.style.left = correctX+'px';
-      el.style.top = correctY+'px';
-      el.dataset.correct = 'true';
-      correctCount++;
-      if(correctCount===9) showQuiz();
+    function startDrag(e){
+        if(el.dataset.correct) return;
+        e.preventDefault();
+        dragging = true;
+        pieces.forEach(p => { if(!p.dataset.correct) p.style.zIndex = 10; });
+        el.style.zIndex = 100;
+        const rect = el.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchmove', onDrag);
+        document.addEventListener('touchend', endDrag);
     }
-  }
 
-  el.addEventListener('mousedown', startDrag);
-  el.addEventListener('touchstart', startDrag);
+    function onDrag(e){
+        if(!dragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const containerRect = container.getBoundingClientRect();
+        el.style.left = (clientX - containerRect.left - offsetX) + 'px';
+        el.style.top = (clientY - containerRect.top - offsetY) + 'px';
+    }
+
+    function endDrag(){
+        if(!dragging) return;
+        dragging=false;
+        const index = parseInt(el.dataset.index);
+        const slot = container.children[index];
+        const dx = el.offsetLeft - slot.offsetLeft;
+        const dy = el.offsetTop - slot.offsetTop;
+        if(Math.abs(dx)<30 && Math.abs(dy)<30){
+            el.style.left = slot.offsetLeft+'px';
+            el.style.top = slot.offsetTop+'px';
+            el.dataset.correct = 'true';
+            correctCount++;
+            if(correctCount===9) showQuiz();
+        }
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', endDrag);
+        document.removeEventListener('touchmove', onDrag);
+        document.removeEventListener('touchend', endDrag);
+    }
+
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag);
 }
 
+// 問答互動
 function showQuiz(){
-  quiz.style.display='block';
+    quiz.style.display='block';
 }
 
-quiz.querySelectorAll('.quiz-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    if(btn.textContent==='C'){ alert('答對！'); quiz.style.display='none'; success.style.display='block'; }
-    else alert('答錯，請再試一次！');
-  });
+document.querySelectorAll('.quiz-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        if(btn.textContent==='C'){ // 正確答案
+            quiz.style.display='none';
+            container.style.display='none';
+            success.style.display='block';
+        } else {
+            alert('答錯，再試一次！');
+        }
+    });
+});
+
+startBtn.addEventListener('click', ()=>{
+    introCard.classList.add('hide');
+    showFullImage();
+});
+
+restartBtn.addEventListener('click', ()=>{
+    success.style.display='none';
+    introCard.classList.remove('hide');
 });
 </script>
-
 </body>
 </html>
