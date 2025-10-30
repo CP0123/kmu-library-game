@@ -263,9 +263,13 @@ startBtn.addEventListener('click', () => {
   setupGame();
 });
 
+// ✅ 重新開始 → 回到開場畫面
 restartBtn.addEventListener('click', () => {
-  setupGame();
+  gameContainer.classList.add('hidden');
+  introCard.classList.remove('hide');
+  success.style.display = 'none';
 });
+  
 </script>
 </body>
 </html>
